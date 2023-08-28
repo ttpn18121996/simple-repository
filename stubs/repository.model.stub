@@ -1,0 +1,18 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ model }};
+use App\Repositories\Contracts\{{ class }} as {{ class }}Contract;
+use SimpleRepository\Repository;
+
+class {{ class }} extends Repository implements {{ class }}Contract
+{
+    /**
+     * Get full name of model.
+     */
+    public function getModelName(): string
+    {
+        return {{ model_basename }}::class;
+    }
+}
