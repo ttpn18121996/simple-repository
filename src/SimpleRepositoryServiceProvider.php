@@ -4,6 +4,7 @@ namespace SimpleRepository;
 
 use Illuminate\Support\ServiceProvider;
 use SimpleRepository\Console\Commands\MakeRepository;
+use SimpleRepository\Console\Commands\MakeService;
 
 class SimpleRepositoryServiceProvider extends ServiceProvider
 {
@@ -13,7 +14,8 @@ class SimpleRepositoryServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(
-            __DIR__.'/../config/simple-repository.php', 'simple-repository'
+            __DIR__.'/../config/simple-repository.php',
+            'simple-repository'
         );
     }
 
@@ -43,6 +45,7 @@ class SimpleRepositoryServiceProvider extends ServiceProvider
 
             $this->commands([
                 MakeRepository::class,
+                MakeService::class,
             ]);
         }
     }

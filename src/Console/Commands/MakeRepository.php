@@ -3,6 +3,7 @@
 namespace SimpleRepository\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Config;
 
 class MakeRepository extends Command
 {
@@ -13,8 +14,8 @@ class MakeRepository extends Command
      */
     protected $signature = 'make:repository
         {repository?}
-        {--m|model= : Model Class Name}
-        {--r|repo=Eloquents : Repo Name}';
+        {--m|model= : Dependency model class name}
+        {--r|repo=Eloquents : The name of the directory containing the repository}';
 
     /**
      * The console command description.
@@ -43,14 +44,14 @@ class MakeRepository extends Command
      */
     public function handle()
     {
-        $this->rootNamespace = config('simple-repository.root_namespace');
-        $this->rootNamespaceModel = config('simple-repository.root_namespace_model');
+        $this->rootNamespace = Config::get('simple-repository.root_namespace_repository');
+        $this->rootNamespaceModel = Config::get('simple-repository.root_namespace_model');
 
         $this->makeFolderRepositories();
 
         $model = $this->option('model') ?? '';
         $modelClass = $this->rootNamespaceModel.'\\'.$model;
-        $repositoryPath = app_path("Repositories/{$this->getRepo()}/{$this->getRepositoryName()}.php");
+        $repositoryPath = $this->laravel->basePath("app/Repositories/{$this->getRepo()}/{$this->getRepositoryName()}.php");
 
         if (file_exists($repositoryPath)) {
             $this->error("{$this->getRepositoryName()}.php file is exists");
@@ -58,16 +59,18 @@ class MakeRepository extends Command
             return Command::FAILURE;
         }
 
-        $contractPath = base_path('stubs/repository.contract.stub');
-        $repositoryStubPath = $this->getStub($modelClass);
+        $contractStubPath = $this->resolveStubPath('/stubs/repository.contract.stub');
+        $repositoryStubPath = $this->resolveStubPath(class_exists($modelClass)
+            ? '/stubs/repository.model.stub'
+            : '/stubs/repository.stub');
 
-        if (! is_dir($repositoryDir = app_path("Repositories/{$this->getRepo()}"))) {
+        if (! is_dir($repositoryDir = $this->laravel->basePath("app/Repositories/{$this->getRepo()}"))) {
             mkdir($repositoryDir, 0777);
         }
 
         $this->createRepository($repositoryPath, $repositoryStubPath, $model, $modelClass);
 
-        if (! is_dir($contractDir = app_path('Repositories/Contracts'))) {
+        if (! is_dir($contractDir = $this->laravel->basePath('app/Repositories/Contracts'))) {
             mkdir($contractDir, 0777);
         }
 
@@ -76,7 +79,7 @@ class MakeRepository extends Command
         $this->updateServiceProvider();
 
         $this->info(sprintf(
-            'Repository [%s] created successfully',
+            'Repository [%s] created successfully.',
             "app/Repositories/{$this->getRepo()}/{$this->getRepositoryName()}.php"
         ));
 
@@ -88,7 +91,7 @@ class MakeRepository extends Command
      */
     protected function makeFolderRepositories(): void
     {
-        $dir = app_path('Repositories');
+        $dir = $this->laravel->basePath('app/Repositories');
 
         if (! is_dir($dir)) {
             mkdir($dir, 0777);
@@ -127,7 +130,7 @@ class MakeRepository extends Command
      */
     protected function createContract(string $stubPath): void
     {
-        $file = fopen(app_path("Repositories/Contracts/{$this->getRepositoryName()}.php"), 'w+');
+        $file = fopen($this->laravel->basePath("app/Repositories/Contracts/{$this->getRepositoryName()}.php"), 'w+');
         $contractContent = file_get_contents($stubPath);
         $contractContent = str_replace([
             '{{ class }}',
@@ -144,9 +147,19 @@ class MakeRepository extends Command
      */
     protected function getStub(string $modelClass): string
     {
-        return class_exists($modelClass)
-            ? base_path('stubs/repository.model.stub')
-            : base_path('stubs/repository.stub');
+        return $this->resolveStubPath(class_exists($modelClass)
+            ? '/stubs/repository.model.stub'
+            : '/stubs/repository.stub');
+    }
+
+    /**
+     * Resolve the fully-qualified path to the stub.
+     */
+    protected function resolveStubPath($stub)
+    {
+        return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
+            ? $customPath
+            : __DIR__.'/../../..'.$stub;
     }
 
     /**
@@ -154,7 +167,7 @@ class MakeRepository extends Command
      */
     protected function getRepo(): string
     {
-        return $this->option('repo') ?? config('simple-repository.default_repository', 'Eloquents');
+        return $this->option('repo') ?? Config::get('simple-repository.default_repository', 'Eloquents');
     }
 
     /**
@@ -178,7 +191,7 @@ class MakeRepository extends Command
      */
     protected function updateServiceProvider(): void
     {
-        $path = app_path('Providers/RepositoryServiceProvider.php');
+        $path = $this->laravel->basePath('app/Providers/SimpleRepositoryServiceProvider.php');
         $fileContent = file($path);
         $contentStart = 0;
         $repo = $this->getRepo();

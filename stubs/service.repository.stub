@@ -1,0 +1,17 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ repository_contract }};
+use SimpleRepository\Service;
+
+class {{ class }} extends Service
+{
+    /**
+     * Get full name of repository contract.
+     */
+    public function getRepositoryName()
+    {
+        return {{ repository_contract_basename }}::class;
+    }
+}
