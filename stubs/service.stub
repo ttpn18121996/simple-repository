@@ -2,15 +2,13 @@
 
 namespace {{ namespace }};
 
+{{ use_dependencies }}
 use SimpleRepository\Service;
 
 class {{ class }} extends Service
 {
-    /**
-     * Get full name of repository contract.
-     */
-    public function getRepositoryName()
-    {
-        return '';
+    public function __construct(
+        {{ dependencies }}
+    ) {
     }
 }

@@ -36,12 +36,9 @@ class SimpleRepositoryServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__.'/../config/simple-repository.php' => config_path('simple-repository.php'),
-            ], 'simple-repository-config');
-
-            $this->publishes([
-                __DIR__.'/../stubs/SimpleRepositoryServiceProvider.php' => app_path('Providers/SimpleRepositoryServiceProvider.php'),
-            ], 'simple-repository-support');
+                __DIR__.'/../stubs/SimpleRepositoryServiceProvider.php' => $this->app->basePath('app/Providers/SimpleRepositoryServiceProvider.php'),
+                __DIR__.'/../config/simple-repository.php' => $this->app->basePath('config/simple-repository.php'),
+            ], 'simple-repository');
 
             $this->commands([
                 MakeRepository::class,
