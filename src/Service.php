@@ -2,18 +2,20 @@
 
 namespace SimpleRepository;
 
+use Illuminate\Container\Container;
+use Illuminate\Support\Str;
+
 abstract class Service
 {
-    /**
-     * Get full name of repository contract.
-     */
-    abstract public function getRepositoryName();
-
-    /**
-     * Get a new repository instance.
-     */
-    public function repository()
+    public function __get($property)
     {
-        return app($this->getRepositoryName());
+        $className = Str::of($property)->studly();
+        $service = '\\App\\Services\\'.$className->toString();
+
+        if ($className->endsWith('Service') && class_exists($service)) {
+            return Container::getInstance()->make($service);
+        }
+
+        return null;
     }
 }

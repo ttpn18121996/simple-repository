@@ -4,6 +4,7 @@ namespace SimpleRepository\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Str;
 
 class MakeService extends Command
 {
@@ -14,7 +15,8 @@ class MakeService extends Command
      */
     protected $signature = 'make:service
         {service?}
-        {--r|repo= : Dependency repository class name}';
+        {--m|model=* : Dependency model class name}
+        {--r|repo=* : Dependency repository class name}';
 
     /**
      * The console command description.
@@ -36,6 +38,11 @@ class MakeService extends Command
     /**
      * @var string
      */
+    protected $rootNamespaceModel = 'App\Models';
+
+    /**
+     * @var string
+     */
     protected $serviceName;
 
     /**
@@ -45,11 +52,24 @@ class MakeService extends Command
     {
         $this->rootNamespace = Config::get('simple-repository.root_namespace_service');
         $this->rootNamespaceRepositoryContract = Config::get('simple-repository.root_namespace_repository_contract');
+        $this->rootNamespaceModel = Config::get('simple-repository.root_namespace_model');
 
         $this->makeFolderService();
 
-        $repository = $this->option('repo') ?? '';
-        $repositoryContract = $this->rootNamespaceRepositoryContract.'\\'.$repository;
+        $repositories = $this->option('repo') ?? [];
+        $dependencyRepositories = [];
+
+        foreach ($repositories as $repository) {
+            $dependencyRepositories[] = $repository;
+        }
+
+        $models = $this->option('model') ?? [];
+        $modelContract = [];
+
+        foreach ($models as $model) {
+            $modelContract[] = $this->rootNamespaceModel.'\\'.$model;
+        }
+
         $servicePath = $this->laravel->basePath("app/Services/{$this->getServiceName()}.php");
 
         if (file_exists($servicePath)) {
@@ -58,11 +78,9 @@ class MakeService extends Command
             return Command::FAILURE;
         }
 
-        $serviceStubPath = $this->resolveStubPath(interface_exists($repositoryContract)
-            ? '/stubs/service.repository.stub'
-            : '/stubs/service.stub');
+        $serviceStubPath = $this->resolveStubPath('/stubs/service.stub');
 
-        $this->createService($servicePath, $serviceStubPath, $repository, $repositoryContract);
+        $this->createService($servicePath, $serviceStubPath);
 
         $this->info(sprintf(
             'Service [%s] created successfully.',
@@ -113,24 +131,58 @@ class MakeService extends Command
     protected function createService(
         string $path,
         string $stubPath,
-        string $repository,
-        string $repositoryContract
     ): void {
         $file = fopen($path, 'w+');
         $serviceContent = file_get_contents($stubPath);
+
+        [$useDependencyRepositories, $dependencyRepositories] = $this->getDependencyRepositories();
+        [$useDependencyModels, $dependencyModels] = $this->getDependencyModels();
+
         $serviceContent = str_replace([
             '{{ namespace }}',
-            '{{ repository_contract }}',
+            '{{ use_dependencies }}',
             '{{ class }}',
-            '{{ repository_contract_basename }}',
+            '{{ dependencies }}',
         ], [
             $this->rootNamespace,
-            $repositoryContract,
+            rtrim($useDependencyModels.$useDependencyRepositories, "\n"),
             $this->getServiceName(),
-            $repository ?? '',
+            rtrim($dependencyModels.$dependencyRepositories, "\n        "),
         ], $serviceContent);
 
         fwrite($file, $serviceContent);
         fclose($file);
+    }
+
+    protected function getDependencyRepositories(): array
+    {
+        $useDependencies = '';
+        $dependencies = '';
+
+        foreach (($this->option('repo') ?? []) as $repository) {
+            $useDependencies .= "use {$this->rootNamespaceRepositoryContract}\\{$repository};\n";
+            $dependencies .= "protected {$repository} $".Str::camel($repository).",\n        ";
+        }
+
+        return [
+            ltrim($useDependencies),
+            $dependencies,
+        ];
+    }
+
+    protected function getDependencyModels(): array
+    {
+        $useDependencies = '';
+        $dependencies = '';
+
+        foreach (($this->option('model') ?? []) as $model) {
+            $useDependencies .= "use {$this->rootNamespaceModel}\\{$model};\n";
+            $dependencies .= "protected {$model} $".Str::camel($model).",\n        ";
+        }
+
+        return [
+            ltrim($useDependencies),
+            $dependencies,
+        ];
     }
 }

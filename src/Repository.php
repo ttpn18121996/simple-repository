@@ -2,6 +2,7 @@
 
 namespace SimpleRepository;
 
+use Illuminate\Container\Container;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Arr;
 use SimpleRepository\Contracts\Repository as RepositoryContract;
@@ -38,9 +39,11 @@ abstract class Repository implements RepositoryContract
     /**
      * Get a new Eloquent model instance.
      */
-    public function model()
+    public function model(array $attributes = [])
     {
-        return app($this->getModelName());
+        return Container::getInstance()->make($this->getModelName(), [
+            'attributes' => $attributes,
+        ]);
     }
 
     /**
