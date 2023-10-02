@@ -2,10 +2,7 @@
 
 namespace SimpleRepository\Console\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Config;
-
-class MakeRepository extends Command
+class MakeRepositoryCommand extends BaseCommand
 {
     /**
      * The name and signature of the console command.
@@ -15,7 +12,7 @@ class MakeRepository extends Command
     protected $signature = 'make:repository
         {repository?}
         {--m|model= : Dependency model class name}
-        {--r|repo=Eloquents : The name of the directory containing the repository}';
+        {--r|repo= : The name of the directory containing the repository}';
 
     /**
      * The console command description.
@@ -25,16 +22,8 @@ class MakeRepository extends Command
     protected $description = 'Make repository file';
 
     /**
-     * @var string
-     */
-    protected $rootNamespace = 'App\Repositories';
-
-    /**
-     * @var string
-     */
-    protected $rootNamespaceModel = 'App\Models';
-
-    /**
+     * Name of repository.
+     *
      * @var string
      */
     protected $repositoryName;
@@ -44,19 +33,16 @@ class MakeRepository extends Command
      */
     public function handle()
     {
-        $this->rootNamespace = Config::get('simple-repository.root_namespace_repository');
-        $this->rootNamespaceModel = Config::get('simple-repository.root_namespace_model');
-
         $this->makeFolderRepositories();
 
         $model = $this->option('model') ?? '';
-        $modelClass = $this->rootNamespaceModel.'\\'.$model;
-        $repositoryPath = $this->laravel->basePath("app/Repositories/{$this->getRepo()}/{$this->getRepositoryName()}.php");
+        $modelClass = $this->getFullnameModel($model);
+        $repositoryPath = $this->getRepositoryPath($this->getRepositoryName());
 
         if (file_exists($repositoryPath)) {
             $this->error("{$this->getRepositoryName()}.php file is exists");
 
-            return Command::FAILURE;
+            return BaseCommand::FAILURE;
         }
 
         $contractStubPath = $this->resolveStubPath('/stubs/repository.contract.stub');
@@ -64,7 +50,7 @@ class MakeRepository extends Command
             ? '/stubs/repository.model.stub'
             : '/stubs/repository.stub');
 
-        if (! is_dir($repositoryDir = $this->laravel->basePath("app/Repositories/{$this->getRepo()}"))) {
+        if (! is_dir($repositoryDir = $this->getRepositoryPath())) {
             mkdir($repositoryDir, 0777);
         }
 
@@ -80,10 +66,10 @@ class MakeRepository extends Command
 
         $this->info(sprintf(
             'Repository [%s] created successfully.',
-            "app/Repositories/{$this->getRepo()}/{$this->getRepositoryName()}.php"
+            $this->getRepositoryPath($this->getRepositoryName())
         ));
 
-        return Command::SUCCESS;
+        return BaseCommand::SUCCESS;
     }
 
     /**
@@ -115,7 +101,7 @@ class MakeRepository extends Command
             '{{ class }}',
             '{{ model_basename }}',
         ], [
-            $this->rootNamespace.'\\'.$this->getRepo(),
+            $this->namespaceRepository($this->getRepositoryDefault($this->option('repo'))),
             $modelClass ?? '',
             $this->getRepositoryName(),
             $model ?? '',
@@ -153,21 +139,16 @@ class MakeRepository extends Command
     }
 
     /**
-     * Resolve the fully-qualified path to the stub.
+     * Get directory path of Repository.
      */
-    protected function resolveStubPath($stub)
+    protected function getRepositoryPath(?string $repositoryName = null): string
     {
-        return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
-            ? $customPath
-            : __DIR__.'/../../..'.$stub;
-    }
+        $repository = $this->getRepositoryDefault($this->option('repo'));
+        $repositoryDir = $this->laravel->basePath('app/Repositories/'.$repository);
 
-    /**
-     * Get directory name of Repository.
-     */
-    protected function getRepo(): string
-    {
-        return $this->option('repo') ?? Config::get('simple-repository.default_repository', 'Eloquents');
+        return empty($repositoryName)
+            ? $repositoryDir
+            : "{$repositoryDir}/{$repositoryName}.php";
     }
 
     /**
@@ -194,15 +175,16 @@ class MakeRepository extends Command
         $path = $this->laravel->basePath('app/Providers/SimpleRepositoryServiceProvider.php');
         $fileContent = file($path);
         $contentStart = 0;
-        $repo = $this->getRepo();
         $name = $this->getRepositoryName();
 
         foreach ($fileContent as $line => $content) {
             if (str_contains($content, 'protected $repositories = [')) {
                 $contentStart = $line;
             } elseif ($contentStart != 0 && str_contains($content, '];')) {
+                $repositoryContract = $this->namespaceRepositoryContract()."\\$name::class";
+                $repositoryClass = $this->namespaceRepository($this->option('repo'))."\\$name::class";
                 $fileContent[$line] = <<<EOT
-                        \App\Repositories\Contracts\\$name::class => \App\Repositories\\$repo\\$name::class,
+                        \\$repositoryContract => \\$repositoryClass,
                     ];
 
                 EOT;
