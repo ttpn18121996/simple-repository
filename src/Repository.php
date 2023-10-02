@@ -164,7 +164,7 @@ abstract class Repository implements RepositoryContract
     /**
      * Get a builder to query data.
      */
-    protected function queryBuilder(): Builder
+    protected function query(): Builder
     {
         $query = $this->model()->query();
 

@@ -1,6 +1,6 @@
 # Simple Repository
 
-[`PHP v8.0`](https://php.net)
+[`PHP v8.1`](https://php.net)
 
 [`Laravel v10`](https://github.com/laravel/laravel)
 
@@ -67,26 +67,22 @@ Run command for make a service. Ex: make `app/Services/UserService.php` file.
 php artisan make:service UserService
 ```
 
-You can specify a model that your service depends on during creation by adding option `--model` or `-m`.
+You can specify the models your service depends on during creation by adding the --model or -m option.
 
 ```bash
-php artisan make:service UserService --model=User
-```
+php artisan make:service UserService --model=User --model=Role
 
 #OR
 
-```bash
-php artisan make:service UserService -m User
+php artisan make:service UserService -m User -m Role
 ```
 
-You can use a service along with a repository, using the repository instead of the model. Specify the repository your service depends on when creating the service by adding option `--repo` or `-r`.
+You can use repositories instead of models. Specify the repositories your service depends on during creation by adding the --repo or -r option.
 
 ```bash
-php artisan make:service UserService --repo=UserRepository
-```
+php artisan make:service UserService --repo=UserRepository --repo=RoleRepository
 
 #OR
 
-```bash
-php artisan make:service UserService -r UserRepository
+php artisan make:service UserService -r UserRepository -r RoleRepository
 ```
