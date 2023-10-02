@@ -3,8 +3,8 @@
 namespace SimpleRepository;
 
 use Illuminate\Support\ServiceProvider;
-use SimpleRepository\Console\Commands\MakeRepository;
-use SimpleRepository\Console\Commands\MakeService;
+use SimpleRepository\Console\Commands\MakeRepositoryCommand;
+use SimpleRepository\Console\Commands\MakeServiceCommand;
 
 class SimpleRepositoryServiceProvider extends ServiceProvider
 {
@@ -41,8 +41,8 @@ class SimpleRepositoryServiceProvider extends ServiceProvider
             ], 'simple-repository');
 
             $this->commands([
-                MakeRepository::class,
-                MakeService::class,
+                MakeRepositoryCommand::class,
+                MakeServiceCommand::class,
             ]);
         }
     }
