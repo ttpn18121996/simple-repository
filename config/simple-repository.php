@@ -10,5 +10,5 @@ return [
     | containing repositories that support processing for eloquent models.
     |
     */
-    'default_repository' => 'Eloquents',
+    'default_repository' => 'Eloquent',
 ];
