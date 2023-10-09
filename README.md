@@ -29,7 +29,7 @@ Add the service provider in `config/app.php`:
 
 ## Create repository
 
-Default Repository uses Eloquent, Run command make `app/Repositories/Eloquents/UserRepository.php` file
+Default Repository uses Eloquent, Run command make `app/Repositories/Eloquent/UserRepository.php` file
 and interface `app/Repositories/Contracts/UserRepository.php`
 
 ```bash
@@ -59,7 +59,7 @@ After creating the repository remember to declare in
 ```php
 protected $repositories = [
     ...
-    \App\Repositories\Contracts\UserRepository::class => \App\Repositories\Eloquents\UserRepository::class,
+    \App\Repositories\Contracts\UserRepository::class => \App\Repositories\Eloquent\UserRepository::class,
 ]
 ```
 
