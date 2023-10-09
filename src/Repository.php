@@ -4,9 +4,14 @@ namespace SimpleRepository;
 
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use SimpleRepository\Contracts\Repository as RepositoryContract;
 
+/**
+ * @see \Illuminate\Database\Eloquent\Builder
+ */
 abstract class Repository implements RepositoryContract
 {
     /**
@@ -49,7 +54,7 @@ abstract class Repository implements RepositoryContract
     /**
      * Set a list of model scopes to query.
      */
-    public function useScope(array|string $scope)
+    public function useScope(array|string $scope): static
     {
         if (is_string($scope)) {
             $scope = [$scope];
@@ -63,7 +68,7 @@ abstract class Repository implements RepositoryContract
     /**
      * Set a list of model relationships to query.
      */
-    public function useWith(array|string $with)
+    public function useWith(array|string $with): static
     {
         if (is_string($with)) {
             $with = [$with];
@@ -77,7 +82,7 @@ abstract class Repository implements RepositoryContract
     /**
      * Set a list of model has/doesn't have relationships to query.
      */
-    public function useHas(array|string $has, bool $boolean = true)
+    public function useHas(array|string $has, bool $boolean = true): static
     {
         if (is_string($has)) {
             $has = [$has];
@@ -95,7 +100,7 @@ abstract class Repository implements RepositoryContract
     /**
      * Set a list of model doesn't have relationships to query.
      */
-    public function useDoesntHave(array|string $doesntHave)
+    public function useDoesntHave(array|string $doesntHave): static
     {
         return $this->useHas($doesntHave, false);
     }
@@ -113,26 +118,52 @@ abstract class Repository implements RepositoryContract
     }
 
     /**
-     * Get the list of the resource with pagination and handle filter.
+     * Get the list of the resource and handle filter.
      */
-    public function getList(array $filters = [], array $columns = ['*'])
+    public function getAll(array $filters = [], array $columns = ['*']): Collection
     {
-        $page = Arr::get($filters, 'page', 1);
-        $perPage = Arr::get($filters, 'per_page', 10);
-
-        $query = $this->getWithFilter($this->queryBuilder(), $filters);
-
-        if ($perPage < 0) {
-            return $query->get($columns);
-        }
-
-        return $query->paginate($perPage, $columns, 'page', $page)->withQueryString();
+        return $this->getBuilder($filters)->get($columns);
     }
 
     /**
-     * Set filter for builder.
+     * Get the list of the resource with pagination and handle filter.
      */
-    protected function getWithFilter(Builder $query, array $filters = []): Builder
+    public function getPagination(
+        array $filters = [],
+        array $columns = ['*'],
+        array $options = []
+    ): LengthAwarePaginator {
+        $pageName = Arr::get($options, 'page_name');
+        $page = Arr::get($filters, $pageName, 1);
+        $perPage = Arr::get($filters, 'per_page', 10);
+
+        return $this->getBuilder($filters)
+            ->paginate($perPage, $columns, $pageName, $page)
+            ->withQueryString();
+    }
+
+    /**
+     * Get a specified resource with filter.
+     */
+    public function getById($id, array $columns = ['*'])
+    {
+        return $this->buildRelationships()
+            ->where($this->model()->getKeyName(), $id)
+            ->first($columns);
+    }
+
+    /**
+     * Get a builder that handles filters and relationships.
+     */
+    protected function getBuilder(array $filters = []): Builder
+    {
+        return $this->buildFilter($this->buildRelationships(), $filters);
+    }
+
+    /**
+     * Build a query with field filters.
+     */
+    protected function buildFilter(Builder $query, array $filters = []): Builder
     {
         $search = Arr::get($filters, 'search');
         $filter = Arr::get($filters, 'filter');
@@ -162,9 +193,9 @@ abstract class Repository implements RepositoryContract
     }
 
     /**
-     * Get a builder to query data.
+     * Build a query with relationships.
      */
-    protected function query(): Builder
+    protected function buildRelationships(): Builder
     {
         $query = $this->model()->query();
 
@@ -206,17 +237,6 @@ abstract class Repository implements RepositoryContract
         }
 
         return $query;
-    }
-
-    /**
-     * Get a specified resource with filter.
-     */
-    public function find($id, array $columns = ['*'])
-    {
-        $query = $this->queryBuilder();
-        $query->where($this->model()->getKeyName(), $id);
-
-        return $query->first($columns);
     }
 
     /**
