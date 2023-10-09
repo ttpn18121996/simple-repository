@@ -16,6 +16,6 @@ abstract class Service
             return Container::getInstance()->make($service);
         }
 
-        return null;
+        return $this?->{$property} ?? null;
     }
 }
