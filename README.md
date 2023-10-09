@@ -2,7 +2,7 @@
 
 [`PHP v8.1`](https://php.net)
 
-[`Laravel v10`](https://github.com/laravel/laravel)
+[`Laravel v10.x`](https://github.com/laravel/laravel)
 
 ## Installation
 
@@ -15,7 +15,7 @@ composer require ttpn18121996/simple-repository
 Next, publish SimpleRepository's resources using the `vendor:publish` command:
 
 ```bash
-php artisan vendor:publish --tag=simple-repository --force
+php artisan vendor:publish --tag=simple-repository
 ```
 
 Add the service provider in `config/app.php`:
@@ -39,18 +39,22 @@ php artisan make:repository UserRepository
 You can specify a model that your repository depends on during creation by adding options `--model` or `-m`.
 
 ```bash
+php artisan make:repository UserRepository --model=User
+
+#OR
+
 php artisan make:repository UserRepository -m User
 ```
 
-Using difference repo for `Repository` during creation by adding options `--repo` or `-r`.
-For example, don't use Eloquent, instead use the form of getting data from another service through the API.
-Now the repository will be created in the directory `app/Repositories/APIs/UserRepository.php`
+Use another repository during build by adding the `--repo` or `-r` option. For example, if you want to use Redis instead of Eloquent, now the repository will be created in the path `app/Repositories/Redis/UserRepository.php`
 
 ```bash
-php artisan make:repository UserRepository -m User -r APIs
+php artisan make:repository UserRepository -m User -r Redis
 ```
 
-After creating the repository remember to declare in `app/Providers/RepositoryServiceProvider.php` where `protected $repositories` (By default they will be added automatically)
+After creating the repository remember to declare in
+`app/Providers/RepositoryServiceProvider.php` where `protected $repositories`
+(By default they will be added automatically)
 
 ```php
 protected $repositories = [
@@ -77,7 +81,8 @@ php artisan make:service UserService --model=User --model=Role
 php artisan make:service UserService -m User -m Role
 ```
 
-You can use repositories instead of models. Specify the repositories your service depends on during creation by adding the --repo or -r option.
+You can use repositories instead of models. Specify the repositories your service depends on during creation
+by adding the --repo or -r option.
 
 ```bash
 php artisan make:service UserService --repo=UserRepository --repo=RoleRepository
@@ -85,4 +90,66 @@ php artisan make:service UserService --repo=UserRepository --repo=RoleRepository
 #OR
 
 php artisan make:service UserService -r UserRepository -r RoleRepository
+```
+
+## Customize the filter builder
+
+Override the `buildFilter` method in the repository class to customize the `buildFilter` from the request.
+
+```php
+protected function buildFilter(Builder $query, array $filters = []): Builder
+{
+    return $query->orderBy('name')
+        ->when(Arr::get($filters, 'name'), function (Builder $query, $name) {
+            $query->where('name', 'like', "%{$name}%");
+        });
+}
+```
+
+Now you just need to call `getAll` or `getPagination`,
+the query will filter itself according to the filters you pass in.
+
+## Customize the relationship builder
+
+Similar to the filter builder, you can override the `buildRelationships` method to customize relational query handling.
+
+```php
+protected function buildRelationships(): Builder
+{
+    return $this->model()->with(['roles', 'permissions']);
+}
+```
+
+## Customize the query builder
+
+If you want to customize the query without affecting other methods that are using `buildRelationships`
+and `buildFilter`, you can override the `getBuilder` method.
+
+```php
+protected function getBuilder(array $filters = []): Builder
+{
+    return $this->model()
+        ->with(['roles', 'permissions'])
+        ->when(Arr::get($filters, 'name'), function (Builder $query, $name) {
+            $query->where('name', 'like', "%{$name}%");
+        })
+        ->orderBy('name');
+}
+```
+
+## Tips
+
+Inside the service class, you can call other services with the same namespace without importing them and instantiating them. You can call them via property pointer with camel case service name. For example, `App\Services\UserService` wants to use `App\Services\RoleService`.
+
+```php
+
+namespace App\Services\UserService;
+
+public function sampleMethod()
+{
+    /**
+     * @var \App\Services\RoleService
+     */
+    $roleService = $this->roleService;
+}
 ```
