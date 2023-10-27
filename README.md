@@ -137,9 +137,39 @@ protected function getBuilder(array $filters = []): Builder
 }
 ```
 
+## Set an authenticated user for the service
+
+Use authenticated users to use permission checks in the service.
+
+```php
+class UserController
+{
+    public function index(Request $request)
+    {
+        $users = $this->userService
+            ->useAuthUser($request->user())
+            ->getList($request->query());
+        ...
+    }
+}
+```
+
+```php
+class UserService extends Service
+{
+    public function getList(array $filters = [])
+    {
+        if ($this->authUser()->can('view_user')) {
+            // Do something
+        }
+        ...
+    }
+}
+```
+
 ## Tips
 
-Inside the service class, you can call other services with the same namespace without importing them and instantiating them. You can call them via property pointer with camel case service name. For example, `App\Services\UserService` wants to use `App\Services\RoleService`.
+Inside the service class, you can call other services with the same namespace without importing them and instantiating them. You can call them via the `getService` method with the service name as the parameter value. For example, `App\Services\UserService` wants to use `App\Services\RoleService`.
 
 ```php
 
@@ -150,6 +180,6 @@ public function sampleMethod()
     /**
      * @var \App\Services\RoleService
      */
-    $roleService = $this->roleService;
+    $roleService = $this->getService('RoleService');
 }
 ```
