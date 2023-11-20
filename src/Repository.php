@@ -136,7 +136,7 @@ abstract class Repository implements RepositoryContract
         array $columns = ['*'],
         array $options = []
     ): LengthAwarePaginator {
-        $pageName = Arr::get($options, 'page_name');
+        $pageName = Arr::get($options, 'page_name', 'page');
         $page = Arr::get($filters, $pageName, 1);
         $perPage = Arr::get($filters, 'per_page', 10);
 
