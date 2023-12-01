@@ -85,6 +85,27 @@ class MakeServiceCommand extends BaseCommand
         if (! is_dir($dir)) {
             mkdir($dir, 0777);
         }
+
+        $this->makeBaseService();
+    }
+
+    /**
+     * Create a new service file for BaseService class.
+     */
+    protected function makeBaseService(): void
+    {
+        $stubPath = $this->resolveStubPath('/stubs/service.base.stub');
+        $filePath = $this->laravel->basePath("app/Services/Service.php");
+
+        if (file_exists($filePath)) {
+            return;
+        }
+
+        $file = fopen($filePath, 'w+');
+        $content = file_get_contents($stubPath);
+
+        fwrite($file, $content);
+        fclose($file);
     }
 
     /**

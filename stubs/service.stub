@@ -3,7 +3,7 @@
 namespace {{ namespace }};
 
 {{ use_dependencies }}
-use SimpleRepository\Service;
+use App\Services\Service;
 
 class {{ class }} extends Service
 {
