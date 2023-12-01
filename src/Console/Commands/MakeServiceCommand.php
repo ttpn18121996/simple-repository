@@ -32,6 +32,8 @@ class MakeServiceCommand extends BaseCommand
 
     /**
      * Execute the console command.
+     *
+     * @return int
      */
     public function handle()
     {
@@ -73,6 +75,8 @@ class MakeServiceCommand extends BaseCommand
 
     /**
      * Make a new directory containing the service if it does not already exist.
+     *
+     * @return void
      */
     protected function makeFolderService(): void
     {
@@ -85,6 +89,8 @@ class MakeServiceCommand extends BaseCommand
 
     /**
      * Get repository name.
+     *
+     * @return string
      */
     protected function getServiceName(): string
     {
@@ -101,6 +107,10 @@ class MakeServiceCommand extends BaseCommand
 
     /**
      * Create a new file Service.
+     *
+     * @param  string  $path
+     * @param  string  $stubPath
+     * @return void
      */
     protected function createService(
         string $path,
@@ -130,6 +140,8 @@ class MakeServiceCommand extends BaseCommand
 
     /**
      * Get the list of dependent repositories.
+     *
+     * @return array
      */
     protected function getDependencyRepositories(): array
     {
@@ -149,6 +161,8 @@ class MakeServiceCommand extends BaseCommand
 
     /**
      * Get the list of dependent models.
+     *
+     * @return array
      */
     protected function getDependencyModels(): array
     {

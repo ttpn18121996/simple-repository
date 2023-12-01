@@ -30,6 +30,8 @@ class MakeRepositoryCommand extends BaseCommand
 
     /**
      * Execute the console command.
+     *
+     * @return int
      */
     public function handle()
     {
@@ -74,6 +76,8 @@ class MakeRepositoryCommand extends BaseCommand
 
     /**
      * Make a new directory containing the repository if it does not already exist.
+     *
+     * @return void
      */
     protected function makeFolderRepositories(): void
     {
@@ -86,6 +90,12 @@ class MakeRepositoryCommand extends BaseCommand
 
     /**
      * Create a new file Repository.
+     *
+     * @param  string  $path
+     * @param  string  $stubPath
+     * @param  string  $model
+     * @param  string  $modelClass
+     * @return void
      */
     protected function createRepository(
         string $path,
@@ -113,6 +123,9 @@ class MakeRepositoryCommand extends BaseCommand
 
     /**
      * Create a new file Contract.
+     *
+     * @param  string  $stubPath
+     * @return void
      */
     protected function createContract(string $stubPath): void
     {
@@ -130,6 +143,9 @@ class MakeRepositoryCommand extends BaseCommand
 
     /**
      * Get the stub file for the generator.
+     *
+     * @param  string  $modelClass
+     * @return string
      */
     protected function getStub(string $modelClass): string
     {
@@ -140,6 +156,9 @@ class MakeRepositoryCommand extends BaseCommand
 
     /**
      * Get directory path of Repository.
+     *
+     * @param  string|null  $repositoryName
+     * @return string
      */
     protected function getRepositoryPath(?string $repositoryName = null): string
     {
@@ -153,6 +172,8 @@ class MakeRepositoryCommand extends BaseCommand
 
     /**
      * Get repository name.
+     *
+     * @return string
      */
     protected function getRepositoryName(): string
     {
@@ -169,6 +190,8 @@ class MakeRepositoryCommand extends BaseCommand
 
     /**
      * Update the RepositoryServiceProvider content, declaring the bindings between abstract and concrete.
+     *
+     * @return void
      */
     protected function updateServiceProvider(): void
     {
