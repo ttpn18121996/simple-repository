@@ -9,6 +9,10 @@ trait HasFilter
 {
     /**
      * Build a query with field filters.
+     *
+     * @param  \Illuminate\Contracts\Database\Query\Builder  $query
+     * @param  array  $filters
+     * @return \Illuminate\Contracts\Database\Query\Builder
      */
     protected function buildFilter(Builder $query, array $filters = []): Builder
     {

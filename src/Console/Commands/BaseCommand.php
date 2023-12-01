@@ -9,6 +9,9 @@ abstract class BaseCommand extends Command
 {
     /**
      * Get the full name of the model.
+     *
+     * @param  string  $modelName
+     * @return string
      */
     protected function getFullnameModel(string $modelName): string
     {
@@ -17,6 +20,9 @@ abstract class BaseCommand extends Command
 
     /**
      * Get repository default directory name.
+     *
+     * @param  string|null  $repository
+     * @return string
      */
     protected function getRepositoryDefault(?string $repository = null): string
     {
@@ -25,6 +31,8 @@ abstract class BaseCommand extends Command
 
     /**
      * Get the namespace of the model.
+     *
+     * @return string
      */
     protected function namespaceModel(): string
     {
@@ -37,6 +45,9 @@ abstract class BaseCommand extends Command
 
     /**
      * Get the namespace of the repository contract.
+     *
+     * @param  string|null  $repository
+     * @return string
      */
     protected function namespaceRepository(?string $repository = null): string
     {
@@ -45,6 +56,8 @@ abstract class BaseCommand extends Command
 
     /**
      * Get the namespace of the repository contract.
+     *
+     * @return string
      */
     protected function namespaceRepositoryContract(): string
     {
@@ -53,8 +66,11 @@ abstract class BaseCommand extends Command
 
     /**
      * Resolve the fully-qualified path to the stub.
+     *
+     * @param  string  $stub
+     * @return string
      */
-    protected function resolveStubPath($stub): string
+    protected function resolveStubPath(string $stub): string
     {
         return file_exists($customPath = $this->laravel->basePath(trim($stub, '/')))
             ? $customPath
@@ -63,6 +79,8 @@ abstract class BaseCommand extends Command
 
     /**
      * Get the root namespace for the class.
+     *
+     * @return string
      */
     protected function rootNamespace(): string
     {
