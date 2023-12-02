@@ -4,12 +4,15 @@ namespace SimpleRepository;
 
 use Exception;
 use Illuminate\Container\Container;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
+use SimpleRepository\Traits\Safetyable;
 
 abstract class Service
 {
+    use Safetyable;
+
     /**
      * List of authenticated users classified by guard.
      *

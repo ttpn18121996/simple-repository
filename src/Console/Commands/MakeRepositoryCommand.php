@@ -96,7 +96,7 @@ class MakeRepositoryCommand extends BaseCommand
     protected function makeBaseRepository(): void
     {
         $stubPath = $this->resolveStubPath('/stubs/repository.base.stub');
-        $filePath = $this->laravel->basePath("app/Repositories/Repository.php");
+        $filePath = $this->laravel->basePath('app/Repositories/Repository.php');
 
         if (file_exists($filePath)) {
             return;

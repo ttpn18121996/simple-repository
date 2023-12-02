@@ -95,7 +95,7 @@ class MakeServiceCommand extends BaseCommand
     protected function makeBaseService(): void
     {
         $stubPath = $this->resolveStubPath('/stubs/service.base.stub');
-        $filePath = $this->laravel->basePath("app/Services/Service.php");
+        $filePath = $this->laravel->basePath('app/Services/Service.php');
 
         if (file_exists($filePath)) {
             return;
