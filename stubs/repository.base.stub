@@ -1,0 +1,10 @@
+<?php
+
+namespace App\Repositories;
+
+use SimpleRepository\Repository as BaseRepository;
+
+class Repository extends BaseRepository
+{
+    //
+}

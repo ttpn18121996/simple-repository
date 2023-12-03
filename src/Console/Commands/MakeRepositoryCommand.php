@@ -86,6 +86,27 @@ class MakeRepositoryCommand extends BaseCommand
         if (! is_dir($dir)) {
             mkdir($dir, 0777);
         }
+
+        $this->makeBaseRepository();
+    }
+
+    /**
+     * Create a new repository file for BaseRepository class.
+     */
+    protected function makeBaseRepository(): void
+    {
+        $stubPath = $this->resolveStubPath('/stubs/repository.base.stub');
+        $filePath = $this->laravel->basePath('app/Repositories/Repository.php');
+
+        if (file_exists($filePath)) {
+            return;
+        }
+
+        $file = fopen($filePath, 'w+');
+        $content = file_get_contents($stubPath);
+
+        fwrite($file, $content);
+        fclose($file);
     }
 
     /**

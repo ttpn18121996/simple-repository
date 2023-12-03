@@ -3,7 +3,7 @@
 namespace {{ namespace }};
 
 use App\Repositories\Contracts\{{ class }} as {{ class }}Contract;
-use SimpleRepository\Repository;
+use App\Repositories\Repository;
 
 class {{ class }} extends Repository implements {{ class }}Contract
 {

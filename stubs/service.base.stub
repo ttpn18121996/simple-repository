@@ -1,0 +1,10 @@
+<?php
+
+namespace App\Services;
+
+use SimpleRepository\Service as BaseService;
+
+class Service extends BaseService
+{
+    //
+}

@@ -9,13 +9,14 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use SimpleRepository\Contracts\Repository as RepositoryContract;
 use SimpleRepository\Traits\HasFilter;
+use SimpleRepository\Traits\Safetyable;
 
 /**
  * @see \Illuminate\Database\Eloquent\Builder
  */
 abstract class Repository implements RepositoryContract
 {
-    use HasFilter;
+    use HasFilter, Safetyable;
 
     /**
      * List of scopes to be attached when querying.
