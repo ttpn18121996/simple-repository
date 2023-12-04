@@ -21,7 +21,7 @@ class MakeServiceCommand extends BaseCommand
      *
      * @var string
      */
-    protected $description = 'Make service file';
+    protected $description = 'Create a new service class';
 
     /**
      * Name of service.
@@ -38,20 +38,6 @@ class MakeServiceCommand extends BaseCommand
     public function handle()
     {
         $this->makeFolderService();
-
-        $repositories = $this->option('repo') ?? [];
-        $dependencyRepositories = [];
-
-        foreach ($repositories as $repository) {
-            $dependencyRepositories[] = $repository;
-        }
-
-        $models = $this->option('model') ?? [];
-        $modelContract = [];
-
-        foreach ($models as $model) {
-            $modelContract[] = $this->getFullnameModel($model);
-        }
 
         $servicePath = $this->laravel->basePath("app/Services/{$this->getServiceName()}.php");
 
@@ -140,17 +126,17 @@ class MakeServiceCommand extends BaseCommand
         $file = fopen($path, 'w+');
         $serviceContent = file_get_contents($stubPath);
 
-        [$useDependencyRepositories, $dependencyRepositories] = $this->getDependencyRepositories();
-        [$useDependencyModels, $dependencyModels] = $this->getDependencyModels();
+        [$namespacedRepositories, $dependencyRepositories] = $this->getDependencyRepositories();
+        [$namespacedModels, $dependencyModels] = $this->getDependencyModels();
 
         $serviceContent = str_replace([
             '{{ namespace }}',
-            '{{ use_dependencies }}',
+            '{{ namespacedDependencies }}',
             '{{ class }}',
             '{{ dependencies }}',
         ], [
             $this->rootNamespace().'Services',
-            rtrim($useDependencyModels.$useDependencyRepositories, "\n"),
+            rtrim($namespacedModels.$namespacedRepositories, "\n"),
             $this->getServiceName(),
             rtrim($dependencyModels.$dependencyRepositories, "\n        "),
         ], $serviceContent);
@@ -166,16 +152,16 @@ class MakeServiceCommand extends BaseCommand
      */
     protected function getDependencyRepositories(): array
     {
-        $useDependencies = '';
+        $namespacedRepositories = '';
         $dependencies = '';
 
         foreach (($this->option('repo') ?? []) as $repository) {
-            $useDependencies .= "use {$this->namespaceRepositoryContract()}\\{$repository};\n";
+            $namespacedRepositories .= "use {$this->namespaceRepositoryContract()}\\{$repository};\n";
             $dependencies .= "protected {$repository} $".Str::camel($repository).",\n        ";
         }
 
         return [
-            ltrim($useDependencies),
+            ltrim($namespacedRepositories),
             $dependencies,
         ];
     }
@@ -187,16 +173,16 @@ class MakeServiceCommand extends BaseCommand
      */
     protected function getDependencyModels(): array
     {
-        $useDependencies = '';
+        $namespacedModels = '';
         $dependencies = '';
 
         foreach (($this->option('model') ?? []) as $model) {
-            $useDependencies .= "use {$this->getFullnameModel($model)};\n";
+            $namespacedModels .= "use {$this->getFullnameModel($model)};\n";
             $dependencies .= "protected {$model} $".Str::camel($model).",\n        ";
         }
 
         return [
-            ltrim($useDependencies),
+            ltrim($namespacedModels),
             $dependencies,
         ];
     }
