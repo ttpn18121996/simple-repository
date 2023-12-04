@@ -19,7 +19,7 @@ class MakeRepositoryCommand extends BaseCommand
      *
      * @var string
      */
-    protected $description = 'Make repository file';
+    protected $description = 'Create a new repository class';
 
     /**
      * Name of repository.
@@ -128,9 +128,9 @@ class MakeRepositoryCommand extends BaseCommand
         $repositoryContent = file_get_contents($stubPath);
         $repositoryContent = str_replace([
             '{{ namespace }}',
-            '{{ model }}',
+            '{{ namespacedModel }}',
             '{{ class }}',
-            '{{ model_basename }}',
+            '{{ model }}',
         ], [
             $this->namespaceRepository($this->getRepositoryDefault($this->option('repo'))),
             $modelClass ?? '',

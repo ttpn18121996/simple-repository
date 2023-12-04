@@ -2,7 +2,7 @@
 
 namespace {{ namespace }};
 
-use {{ model }};
+use {{ namespacedModel }};
 use App\Repositories\Contracts\{{ class }} as {{ class }}Contract;
 use App\Repositories\Repository;
 
@@ -13,6 +13,6 @@ class {{ class }} extends Repository implements {{ class }}Contract
      */
     public function getModelName(): string
     {
-        return {{ model_basename }}::class;
+        return {{ model }}::class;
     }
 }
