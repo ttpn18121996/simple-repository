@@ -18,7 +18,7 @@ abstract class Service
      *
      * @var array
      */
-    protected array $authUsers;
+    protected array $authUsers = [];
 
     /**
      * Get the authenticated user for the service.
