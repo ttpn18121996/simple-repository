@@ -7,11 +7,12 @@ use Illuminate\Container\Container;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
+use SimpleRepository\Traits\HasFilter;
 use SimpleRepository\Traits\Safetyable;
 
 abstract class Service
 {
-    use Safetyable;
+    use HasFilter, Safetyable;
 
     /**
      * List of authenticated users classified by guard.
