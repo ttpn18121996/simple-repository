@@ -21,8 +21,7 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
-        "friendsofphp/php-cs-fixer": "dev-master",
-        "phpunit/phpunit": "^10.0"
+        "friendsofphp/php-cs-fixer": "dev-master"
     },
     "autoload": {
         "psr-4": {
@@ -37,5 +36,10 @@
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": false
+    "prefer-stable": false,
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
 }
