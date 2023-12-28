@@ -38,11 +38,11 @@ trait HasFilter
     /**
      * Resolve a closure for building a relative search query.
      *
-     * @param  array  $search
+     * @param  array|null  $search
      * @param  string  $boolean
      * @return \Closure
      */
-    protected function whereSearch(array $search, string $boolean = 'and'): Closure
+    protected function whereSearch(?array $search, string $boolean = 'and'): Closure
     {
         return function ($query) use ($search, $boolean) {
             foreach ($search as $field => $value) {
@@ -54,11 +54,11 @@ trait HasFilter
     /**
      * Resolve a closure for building an absolute search query.
      *
-     * @param  array  $filter
+     * @param  array|null  $filter
      * @param  string  $boolean
      * @return \Closure
      */
-    protected function whereFilter(array $filter, string $boolean = 'and'): Closure
+    protected function whereFilter(?array $filter, string $boolean = 'and'): Closure
     {
         return function ($query) use ($filter, $boolean) {
             foreach ($filter as $field => $value) {

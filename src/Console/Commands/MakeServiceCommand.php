@@ -156,8 +156,10 @@ class MakeServiceCommand extends BaseCommand
     {
         $namespacedRepositories = '';
         $dependencies = '';
+        $repositories = $this->option('repo') ?? [];
+        $repositories = is_string($this->option('repo')) ? [$repositories] : $repositories;
 
-        foreach (($this->option('repo') ?? []) as $repository) {
+        foreach ($repositories as $repository) {
             $namespacedRepositories .= "use {$this->namespaceRepositoryContract()}\\{$repository};\n";
             $dependencies .= "protected {$repository} $".Str::camel($repository).",\n        ";
         }
@@ -177,8 +179,10 @@ class MakeServiceCommand extends BaseCommand
     {
         $namespacedModels = '';
         $dependencies = '';
+        $models = $this->option('model') ?? [];
+        $models = is_string($models) ? [$models] : $models;
 
-        foreach (($this->option('model') ?? []) as $model) {
+        foreach ($models as $model) {
             $namespacedModels .= "use {$this->getFullnameModel($model)};\n";
             $dependencies .= "protected {$model} $".Str::camel($model).",\n        ";
         }
