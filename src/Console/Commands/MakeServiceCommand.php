@@ -77,6 +77,8 @@ class MakeServiceCommand extends BaseCommand
 
     /**
      * Create a new service file for BaseService class.
+     *
+     * @return void
      */
     protected function makeBaseService(): void
     {

@@ -5,6 +5,7 @@ namespace SimpleRepository\Traits;
 use Closure;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use SimpleRepository\ServiceNotFoundException;
 use Throwable;
 
 trait Safetyable
@@ -26,6 +27,12 @@ trait Safetyable
             DB::commit();
 
             return $result;
+        } catch (ServiceNotFoundException $e) {
+            DB::rollBack();
+
+            Log::error("{$titleError}: Incorrect service class name or service class does not exist. Initialize the service manually to ensure that it exists.");
+
+            return null;
         } catch (Throwable $e) {
             DB::rollBack();
 
