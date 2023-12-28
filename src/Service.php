@@ -2,7 +2,6 @@
 
 namespace SimpleRepository;
 
-use Exception;
 use Illuminate\Container\Container;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Config;
@@ -56,7 +55,7 @@ abstract class Service
      * @param  string  $serviceName
      * @return mixed
      *
-     * @throws \Exception
+     * @throws \SimpleRepository\ServiceNotFoundException
      */
     public function getService(string $serviceName)
     {
@@ -67,6 +66,6 @@ abstract class Service
             return Container::getInstance()->make($service);
         }
 
-        throw new Exception($service.' does not exist.');
+        throw new ServiceNotFoundException($service.' does not exist.');
     }
 }
