@@ -15,16 +15,11 @@ abstract class Service
 
     /**
      * List of authenticated users classified by guard.
-     *
-     * @var array
      */
     protected array $authUsers = [];
 
     /**
      * Get the authenticated user for the service.
-     *
-     * @param  string|null  $guard
-     * @return \Illuminate\Contracts\Auth\Authenticatable
      */
     public function authUser(?string $guard = null)
     {
@@ -35,10 +30,6 @@ abstract class Service
 
     /**
      * Set the authenticated user for the service.
-     *
-     * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
-     * @param  string|null  $guard
-     * @return $this
      */
     public function useAuthUser($user, ?string $guard = null): static
     {
@@ -51,9 +42,6 @@ abstract class Service
 
     /**
      * Get a new service instance.
-     *
-     * @param  string  $serviceName
-     * @return mixed
      *
      * @throws \SimpleRepository\ServiceNotFoundException
      */

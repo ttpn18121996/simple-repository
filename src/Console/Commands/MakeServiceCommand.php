@@ -25,10 +25,8 @@ class MakeServiceCommand extends BaseCommand
 
     /**
      * Name of service.
-     *
-     * @var string
      */
-    protected $serviceName;
+    protected string $serviceName;
 
     /**
      * Execute the console command.
@@ -53,7 +51,7 @@ class MakeServiceCommand extends BaseCommand
 
         $this->info(sprintf(
             'Service [%s] created successfully.',
-            "app/Services/{$this->getServiceName()}.php"
+            "app/Services/{$this->getServiceName()}.php",
         ));
 
         return BaseCommand::SUCCESS;
@@ -61,8 +59,6 @@ class MakeServiceCommand extends BaseCommand
 
     /**
      * Make a new directory containing the service if it does not already exist.
-     *
-     * @return void
      */
     protected function makeFolderService(): void
     {
@@ -77,8 +73,6 @@ class MakeServiceCommand extends BaseCommand
 
     /**
      * Create a new service file for BaseService class.
-     *
-     * @return void
      */
     protected function makeBaseService(): void
     {
@@ -98,8 +92,6 @@ class MakeServiceCommand extends BaseCommand
 
     /**
      * Get repository name.
-     *
-     * @return string
      */
     protected function getServiceName(): string
     {
@@ -116,10 +108,6 @@ class MakeServiceCommand extends BaseCommand
 
     /**
      * Create a new file Service.
-     *
-     * @param  string  $path
-     * @param  string  $stubPath
-     * @return void
      */
     protected function createService(
         string $path,
@@ -149,8 +137,6 @@ class MakeServiceCommand extends BaseCommand
 
     /**
      * Get the list of dependent repositories.
-     *
-     * @return array
      */
     protected function getDependencyRepositories(): array
     {
@@ -172,8 +158,6 @@ class MakeServiceCommand extends BaseCommand
 
     /**
      * Get the list of dependent models.
-     *
-     * @return array
      */
     protected function getDependencyModels(): array
     {

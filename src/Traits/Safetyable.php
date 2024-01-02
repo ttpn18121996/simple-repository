@@ -12,10 +12,6 @@ trait Safetyable
 {
     /**
      * Safely execute database interactions using transaction.
-     *
-     * @param  \Closure  $callback
-     * @param  string  $titleError
-     * @return mixed
      */
     protected function handleSafely(Closure $callback, string $titleError = 'Process')
     {

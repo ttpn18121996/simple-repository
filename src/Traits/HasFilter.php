@@ -11,10 +11,6 @@ trait HasFilter
 {
     /**
      * Build a query with field filters.
-     *
-     * @param  \Illuminate\Contracts\Database\Query\Builder  $query
-     * @param  array  $filters
-     * @return \Illuminate\Contracts\Database\Query\Builder
      */
     protected function buildFilter(Builder $query, array $filters = []): Builder
     {
@@ -38,10 +34,6 @@ trait HasFilter
 
     /**
      * Resolve a closure for building a relative search query.
-     *
-     * @param  array|null  $search
-     * @param  string  $boolean
-     * @return \Closure
      */
     protected function whereSearch(?array $search, string $boolean = 'and'): Closure
     {
@@ -74,10 +66,6 @@ trait HasFilter
 
     /**
      * Resolve a closure for building an absolute search query.
-     *
-     * @param  array|null  $filter
-     * @param  string  $boolean
-     * @return \Closure
      */
     protected function whereFilter(?array $filter, string $boolean = 'and'): Closure
     {

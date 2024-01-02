@@ -21,7 +21,8 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
-        "friendsofphp/php-cs-fixer": "dev-master"
+        "friendsofphp/php-cs-fixer": "dev-master",
+        "laravel/pint": "dev-main"
     },
     "autoload": {
         "psr-4": {
