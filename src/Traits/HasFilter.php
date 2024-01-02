@@ -5,6 +5,7 @@ namespace SimpleRepository\Traits;
 use Closure;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Arr;
+use TypeError;
 
 trait HasFilter
 {
@@ -46,9 +47,29 @@ trait HasFilter
     {
         return function ($query) use ($search, $boolean) {
             foreach ($search as $field => $value) {
+                $field = $this->getTransferredField($field);
+
                 $query->where($field, 'like', "%{$value}%", $boolean);
             }
         };
+    }
+
+    /**
+     * Get the name of the transferred data field.
+     *
+     * @throws \TypeError
+     */
+    protected function getTransferredField(string $field): string
+    {
+        if (! property_exists(get_class($this), 'transferredFields')) {
+            return $field;
+        }
+
+        if (! is_array($this->transferredFields)) {
+            throw new TypeError(self::class.'::$transferredFields: Property $transferredFields must be of type array');
+        }
+
+        return Arr::get($this->transferredFields, $field, $field);
     }
 
     /**
@@ -62,6 +83,8 @@ trait HasFilter
     {
         return function ($query) use ($filter, $boolean) {
             foreach ($filter as $field => $value) {
+                $field = $this->getTransferredField($field);
+
                 $query->where($field, '=', $value, $boolean);
             }
         };
