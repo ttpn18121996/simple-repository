@@ -46,7 +46,8 @@ php artisan make:repository UserRepository --model=User
 php artisan make:repository UserRepository -m User
 ```
 
-Use another repository during build by adding the `--repo` or `-r` option. For example, if you want to use Redis instead of Eloquent, now the repository will be created in the path `app/Repositories/Redis/UserRepository.php`
+Use another repository during build by adding the `--repo` or `-r` option. For example, if you want to use Redis instead
+of Eloquent, now the repository will be created in the path `app/Repositories/Redis/UserRepository.php`
 
 ```bash
 php artisan make:repository UserRepository -m User -r Redis
@@ -167,9 +168,78 @@ class UserService extends Service
 }
 ```
 
+## Implementation and expansion
+
+The simple repository provides two trait classes "HasFilter" and "Safetyable" that serve to build queries that handle
+sorting and filtering of data (HasFilter) and use transactions for data interaction (Safetyable). By default, the base
+service and base repository classes extend these two trait classes.
+
+**HasFilter** provides a `buildFilter` method. To use this feature, we need to pass the `filters` parameter in the format:
+
+```php
+$this->buildFilter(query: $query, filters: [
+    'search' => [ // Relative search (operator "like")
+        'field_1' => 'value1',
+        'field_2' => 'value2',
+    ],
+    'or_search' => [ // Relative search (operator "like"). Use the "orWhere" method
+        'field_1' => 'value1',
+        'field_2' => 'value2',
+    ],
+    'filter' => [ // Absolute search (operator "=")
+        'field_1' => 'value1',
+        'field_2' => 'value2',
+    ],
+    'or_filter' => [ // Absolute search (operator "="). Use the "orWhere" method
+        'field_1' => 'value1',
+        'field_2' => 'value2',
+    ],
+    'sort' => [ // Sort data
+        'field' => 'field_name',
+        'direction' => 'asc' // asc | desc
+    ],
+]);
+```
+
+To fix the problem of 2 tables having the same field name or you want to change the field on the url to avoid revealing
+the table and field names in the database, the solution is to create a "transferredFields" property in your service class.
+
+For example: users and roles tables both have a field of "name".
+
+```php
+namespace App\Services;
+
+class UserService extends Service
+{
+    protected array $transferredFields = [
+        'name' => 'users.name',
+        'role_name' => 'roles.name',
+    ];
+}
+```
+
+Or you can also directly override the "getTransferredField" method to transfer the field name.
+
+```php
+namespace App\Services;
+
+class UserService extends Service
+{
+    protected function getTransferredField(string $field): string
+    {
+        return [
+            'name' => 'users.name',
+            'role_name' => 'roles.name',
+        ][$field] ?? $field;
+    }
+}
+```
+
 ## Tips
 
-Inside the service class, you can call other services with the same namespace without importing them and instantiating them. You can call them via the `getService` method with the service name as the parameter value. For example, `App\Services\UserService` wants to use `App\Services\RoleService`.
+Inside the service class, you can call other services with the same namespace without importing them and instantiating
+them. You can call them via the `getService` method with the service name as the parameter value. For example,
+`App\Services\UserService` wants to use `App\Services\RoleService`.
 
 ```php
 

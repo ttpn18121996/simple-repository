@@ -10,21 +10,17 @@ class SimpleRepositoryServiceProvider extends ServiceProvider
 {
     /**
      * Register services.
-     *
-     * @return void
      */
     public function register(): void
     {
         $this->mergeConfigFrom(
             __DIR__.'/../config/simple-repository.php',
-            'simple-repository'
+            'simple-repository',
         );
     }
 
     /**
      * Bootstrap services.
-     *
-     * @return void
      */
     public function boot(): void
     {
@@ -33,10 +29,8 @@ class SimpleRepositoryServiceProvider extends ServiceProvider
 
     /**
      * Configure the publishable resources offered by the package.
-     *
-     * @return void
      */
-    protected function configurePublishing()
+    protected function configurePublishing(): void
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
