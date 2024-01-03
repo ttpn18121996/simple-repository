@@ -5,10 +5,11 @@ namespace SimpleRepository\Traits;
 use Closure;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Arr;
-use TypeError;
 
 trait HasFilter
 {
+    protected array $transferredFields = [];
+
     /**
      * Build a query with field filters.
      */
@@ -23,7 +24,7 @@ trait HasFilter
         if (! empty($search)) {
             $query->where($this->whereSearch($search));
         }
-        
+
         if (! empty($orSearch)) {
             $query->where($this->whereSearch($orSearch, 'or'));
         }
@@ -31,7 +32,7 @@ trait HasFilter
         if (! empty($filter)) {
             $query->where($this->whereFilter($filter));
         }
-        
+
         if (! empty($orFilter)) {
             $query->where($this->whereFilter($orFilter, 'or'));
         }
@@ -69,19 +70,9 @@ trait HasFilter
 
     /**
      * Get the name of the transferred data field.
-     *
-     * @throws \TypeError
      */
     protected function getTransferredField(string $field): string
     {
-        if (! property_exists(get_class($this), 'transferredFields')) {
-            return $field;
-        }
-
-        if (! is_array($this->transferredFields)) {
-            throw new TypeError(self::class.'::$transferredFields: Property $transferredFields must be of type array');
-        }
-
         return Arr::get($this->transferredFields, $field, $field);
     }
 }
