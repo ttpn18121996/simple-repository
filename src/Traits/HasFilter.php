@@ -20,10 +20,21 @@ trait HasFilter
         $orFilter = Arr::get($filters, 'or_filter');
         $sort = Arr::get($filters, 'sort');
 
-        $query->when(! empty($search), $this->whereSearch($search))
-            ->when(! empty($orSearch), $this->whereSearch($orSearch, 'or'))
-            ->when(! empty($filter), $this->whereFilter($filter))
-            ->when(! empty($orFilter), $this->whereFilter($filter, 'or'));
+        if (! empty($search)) {
+            $query->where($this->whereSearch($search));
+        }
+        
+        if (! empty($orSearch)) {
+            $query->where($this->whereSearch($orSearch, 'or'));
+        }
+
+        if (! empty($filter)) {
+            $query->where($this->whereFilter($filter));
+        }
+        
+        if (! empty($orFilter)) {
+            $query->where($this->whereFilter($orFilter, 'or'));
+        }
 
         if (! empty($sort) && Arr::has($sort, ['field', 'direction'])) {
             $query->orderBy($this->getTransferredField($sort['field']), $sort['direction'] ?? 'asc');
