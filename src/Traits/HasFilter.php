@@ -26,7 +26,7 @@ trait HasFilter
             ->when(! empty($orFilter), $this->whereFilter($filter, 'or'));
 
         if (! empty($sort) && Arr::has($sort, ['field', 'direction'])) {
-            $query->orderBy($sort['field'], $sort['direction'] ?? 'asc');
+            $query->orderBy($this->getTransferredField($sort['field']), $sort['direction'] ?? 'asc');
         }
 
         return $query;
@@ -39,9 +39,19 @@ trait HasFilter
     {
         return function ($query) use ($search, $boolean) {
             foreach ($search as $field => $value) {
-                $field = $this->getTransferredField($field);
+                $query->where($this->getTransferredField($field), 'like', "%{$value}%", $boolean);
+            }
+        };
+    }
 
-                $query->where($field, 'like', "%{$value}%", $boolean);
+    /**
+     * Resolve a closure for building an absolute search query.
+     */
+    protected function whereFilter(?array $filter, string $boolean = 'and'): Closure
+    {
+        return function ($query) use ($filter, $boolean) {
+            foreach ($filter as $field => $value) {
+                $query->where($this->getTransferredField($field), '=', $value, $boolean);
             }
         };
     }
@@ -62,19 +72,5 @@ trait HasFilter
         }
 
         return Arr::get($this->transferredFields, $field, $field);
-    }
-
-    /**
-     * Resolve a closure for building an absolute search query.
-     */
-    protected function whereFilter(?array $filter, string $boolean = 'and'): Closure
-    {
-        return function ($query) use ($filter, $boolean) {
-            foreach ($filter as $field => $value) {
-                $field = $this->getTransferredField($field);
-
-                $query->where($field, '=', $value, $boolean);
-            }
-        };
     }
 }
