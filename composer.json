@@ -1,7 +1,7 @@
 {
     "name": "ttpn18121996/simple-repository",
-    "description": "Build a quick and simple repository pattern.",
-    "keywords": ["repository", "simple-repository"],
+    "description": "Build repository and service patterns quickly and simply.",
+    "keywords": ["repository", "simple-repository", "service"],
     "license": "MIT",
     "authors": [
         {

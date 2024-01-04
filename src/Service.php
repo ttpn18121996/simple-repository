@@ -3,6 +3,7 @@
 namespace SimpleRepository;
 
 use Illuminate\Container\Container;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
@@ -21,7 +22,7 @@ abstract class Service
     /**
      * Get the authenticated user for the service.
      */
-    public function authUser(?string $guard = null)
+    public function authUser(?string $guard = null): ?Authenticatable
     {
         $guard ??= Config::get('auth.defaults.guard');
 
@@ -31,7 +32,7 @@ abstract class Service
     /**
      * Set the authenticated user for the service.
      */
-    public function useAuthUser($user, ?string $guard = null): static
+    public function useAuthUser(Authenticatable $user, ?string $guard = null): static
     {
         $guard ??= Config::get('auth.defaults.guard');
 

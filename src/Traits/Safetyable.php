@@ -26,7 +26,8 @@ trait Safetyable
         } catch (ServiceNotFoundException $e) {
             DB::rollBack();
 
-            Log::error("{$titleError}: Incorrect service class name or service class does not exist. Initialize the service manually to ensure that it exists.");
+            Log::error("{$titleError}: Incorrect service class name or service class does not exist.
+            Initialize the service manually to ensure that it exists.");
 
             return null;
         } catch (Throwable $e) {
