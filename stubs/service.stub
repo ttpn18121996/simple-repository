@@ -1,13 +1,13 @@
 <?php
 
 namespace {{ namespace }};
-
 {{ namespacedDependencies }}
 use App\Services\Service;
+use SimpleRepository\Attributes\ModelFactory;
 
 class {{ class }} extends Service
 {
-    public function __construct(
+{{ properties }}public function __construct(
         {{ dependencies }}
     ) {
     }
