@@ -106,7 +106,7 @@ abstract class Service
             foreach ($property->getAttributes() as $propertysAttribute) {
                 if (
                     $propertysAttribute->getName() == ModelFactory::class
-                    && $name == $propertyName()
+                    && $name == $propertyName
                 ) {
                     $modelFactoryReflection = new ReflectionClass($propertysAttribute->getName());
                     $modelFactory = $modelFactoryReflection->newInstance(...$propertysAttribute->getArguments());
