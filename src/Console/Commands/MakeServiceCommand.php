@@ -177,7 +177,7 @@ class MakeServiceCommand extends BaseCommand
         foreach ($models as $model) {
             $namespacedModels .= "\nuse {$this->getFullnameModel($model)};";
             $properties .= "    #[ModelFactory({$model}::class)]\n";
-            $properties .= "    protected ?{$model} $".Str::camel($model).";\n\n";
+            $properties .= "    protected ?{$model} $".Str::camel($model)." = null;\n\n";
         }
 
         return [
