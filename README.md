@@ -64,6 +64,82 @@ protected $repositories = [
 ]
 ```
 
+The example shows the dynamic extension of the repository pattern.
+We use province data in the database. After a while, we realize that using local data is no longer suitable and we want to use a data source from an external web service. Editing the existing `Eloquent\ProvinceRepository` content will result in errors or be difficult to revert to before. Instead, we will create a new repository called `WebService\ProvinceRepository` while still ensuring its accuracy like the old repository.
+
+```text
+/app
+├---/Providers
+|   ├---RepositoryServiceProvider.php
+├---/Repositories
+|   ├---/Contracts
+|   |   ├---ProvinceRepository.php
+|   ├---/Eloquent
+|   |   ├---ProvinceRepository.php
+|   ├---/WebService
+|   |   ├---ProvinceRepository.php
+```
+
+app/Repositories/Eloquent/ProvinceRepository.php
+
+```php
+<?php
+
+namespace App\Repositories\Eloquent;
+
+use App\Models\Province;
+use App\Repositories\Contracts\ProvinceRepository as ProvinceRepositoryContract;
+
+class ProvinceRepository implements ProvinceRepositoryContract
+{
+    public function getModelName(): string
+    {
+        return Province::class;
+    }
+
+    public function all()
+    {
+        return $this->model()->all();
+    }
+}
+```
+
+app/Repositories/WebService/ProvinceRepository.php
+
+```php
+<?php
+
+namespace App\Repositories\WebService;
+
+use App\Repositories\Contracts\ProvinceRepository as ProvinceRepositoryContract;
+use Illuminate\Support\Facades\Http;
+
+class ProvinceRepository implements ProvinceRepositoryContract
+{
+    public function getModelName(): string
+    {
+        return '';
+    }
+
+    public function all()
+    {
+        $response = Http::get('https://api.domain.example/provinces');
+
+        return $response->success() ? $response->collection() : collect();
+    }
+}
+```
+
+Finally, what we need to do is change the binding between the abstract and the concrete in `RepositoryServiceProvider`
+
+```php
+protected $repositories = [
+    ...
+    // \App\Repositories\Contracts\ProvinceRepository::class => \App\Repositories\Eloquent\ProvinceRepository::class,
+    \App\Repositories\Contracts\ProvinceRepository::class => \App\Repositories\WebService\ProvinceRepository::class,
+]
+```
+
 ## Create service
 
 Run command for make a service. Ex: make `app/Services/UserService.php` file.
@@ -235,6 +311,55 @@ class UserService extends Service
 }
 ```
 
+## ModelFactory attribute
+
+When using model in service, it will look like this:
+
+```php
+<?php
+
+namespace App\Services;
+
+use App\Models\User;
+
+class UserService extends Service
+{
+    public function __construct(
+        public User $user,
+    ) {
+    }
+
+    public function getById($id)
+    {
+        return $this->user->find($id);
+    }
+}
+```
+
+Instead of when using a service, dependent models will be initialized and injected automatically through
+the container service. Now, only when you call them are they initialized and stored.
+You can declare and use the model in the service through the ModelFactory attribute like this:
+
+```php
+<?php
+
+namespace App\Services;
+
+use App\Models\User;
+use SimpleRepository\Attributes\ModelFactory;
+
+class UserService extends Service
+{
+    #[ModelFactory(User::class)]
+    public ?User $user = null;
+
+    public function getById($id)
+    {
+        return $this->getModel('user')->find($id);
+    }
+}
+```
+
 ## Tips
 
 Inside the service class, you can call other services with the same namespace without importing them and instantiating
@@ -242,7 +367,6 @@ them. You can call them via the `getService` method with the service name as the
 `App\Services\UserService` wants to use `App\Services\RoleService`.
 
 ```php
-
 namespace App\Services\UserService;
 
 public function sampleMethod()
@@ -251,5 +375,26 @@ public function sampleMethod()
      * @var \App\Services\RoleService
      */
     $roleService = $this->getService('RoleService');
+}
+```
+
+```php
+namespace App\Services\UserService;
+
+use App\Services\RoleService;
+use SimpleRepository\Attributes\ServiceFactory;
+
+class UserService extends Service
+{
+    #[ServiceFactory(RoleService::class)]
+    public ?RoleService $role = null;
+
+    public function sampleMethod()
+    {
+        /**
+         * @var \App\Services\RoleService
+         */
+        $roleService = $this->getService('role');
+    }
 }
 ```
