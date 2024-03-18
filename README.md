@@ -1,8 +1,8 @@
 # Simple Repository
 
-[`PHP v8.1`](https://php.net)
+[`PHP v8.2`](https://php.net)
 
-[`Laravel v10.x`](https://github.com/laravel/laravel)
+[`Laravel v11.x`](https://github.com/laravel/laravel)
 
 ## Installation
 
@@ -12,19 +12,10 @@ Install using composer:
 composer require ttpn18121996/simple-repository
 ```
 
-Next, publish SimpleRepository's resources using the `vendor:publish` command:
+Next, publish SimpleRepository's resources using the `simple-repository:install` command:
 
 ```bash
-php artisan vendor:publish --tag=simple-repository
-```
-
-Add the service provider in `config/app.php`:
-
-```php
-'providers' => [
-    ...
-    App\Providers\SimpleRepositoryServiceProvider::class,
-]
+php artisan simple-repository:install
 ```
 
 ## Create repository

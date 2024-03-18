@@ -3,6 +3,7 @@
 namespace SimpleRepository;
 
 use Illuminate\Support\ServiceProvider;
+use SimpleRepository\Console\Commands\InstallCommand;
 use SimpleRepository\Console\Commands\MakeRepositoryCommand;
 use SimpleRepository\Console\Commands\MakeServiceCommand;
 
@@ -41,6 +42,7 @@ class SimpleRepositoryServiceProvider extends ServiceProvider
             $this->commands([
                 MakeRepositoryCommand::class,
                 MakeServiceCommand::class,
+                InstallCommand::class,
             ]);
         }
     }
