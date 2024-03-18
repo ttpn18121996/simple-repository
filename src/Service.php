@@ -2,8 +2,10 @@
 
 namespace SimpleRepository;
 
+use ErrorException;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
@@ -94,25 +96,24 @@ abstract class Service
      */
     public function getModel(string $name, array $attributes = [])
     {
-        $reflection = new ReflectionClass($this);
+        if (! property_exists($this, $name)) {
+            throw new ErrorException('Undefined property: '.get_class($this).'::$'.$name);
+        }
 
-        if (property_exists($this, $name) && ! is_null($this->{$name})) {
+        if (! is_null($this->{$name})) {
             return $this->{$name};
         }
 
-        foreach ($reflection->getProperties() as $property) {
-            $propertyName = $property->getName();
+        $reflectionClass = new ReflectionClass($this);
+        $reflectionProperty = $reflectionClass->getProperty($name);
 
-            foreach ($property->getAttributes() as $propertysAttribute) {
-                if (
-                    $propertysAttribute->getName() == ModelFactory::class
-                    && $name == $propertyName()
-                ) {
-                    $modelFactoryReflection = new ReflectionClass($propertysAttribute->getName());
-                    $modelFactory = $modelFactoryReflection->newInstance(...$propertysAttribute->getArguments());
+        foreach ($reflectionProperty->getAttributes() as $propertysAttribute) {
+            $attributeName = $propertysAttribute->getName();
+            if ($attributeName == ModelFactory::class) {
+                $modelFactoryReflection = new ReflectionClass($attributeName);
+                $modelFactory = $modelFactoryReflection->newInstance(...$propertysAttribute->getArguments());
 
-                    $this->{$name} = $modelFactory->getModel($attributes);
-                }
+                $this->{$name} = $modelFactory->getModel($attributes);
             }
         }
 
