@@ -26,7 +26,7 @@ class MakeServiceCommand extends BaseCommand
     /**
      * Name of service.
      */
-    protected string $serviceName;
+    protected ?string $serviceName = null;
 
     /**
      * Execute the console command.
