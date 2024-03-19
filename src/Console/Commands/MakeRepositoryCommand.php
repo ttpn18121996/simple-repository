@@ -24,7 +24,7 @@ class MakeRepositoryCommand extends BaseCommand
     /**
      * Name of repository.
      */
-    protected string $repositoryName;
+    protected ?string $repositoryName = null;
 
     /**
      * Execute the console command.
