@@ -13,6 +13,9 @@ class ServiceFactory
     ) {
     }
 
+    /**
+     * Create a new service instance.
+     */
     public function getService()
     {
         return Container::getInstance()->make($this->serviceName);

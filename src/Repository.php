@@ -5,6 +5,7 @@ namespace SimpleRepository;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use SimpleRepository\Contracts\Repository as RepositoryContract;
@@ -41,9 +42,18 @@ abstract class Repository implements RepositoryContract
      */
     public function model(array $attributes = [])
     {
-        return Container::getInstance()->make($this->getModelName(), [
+        $modelName = $this->getModelName();
+        $model = Container::getInstance()->make($modelName, [
             'attributes' => $attributes,
         ]);
+
+        if (! $model instanceof Model) {
+            throw new RepositoryMakeModelException('Class '.$modelName.' must be an instance of '.Model::class.
+            '. The model name provided in the getModelName() method is not the name of a class instance of a '.
+            Model::class.' class.');
+        }
+
+        return $model;
     }
 
     /**
