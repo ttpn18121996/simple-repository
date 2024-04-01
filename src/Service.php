@@ -64,6 +64,8 @@ abstract class Service
                     && $serviceName == $propertyName
                 ) {
                     $serviceFactoryReflection = new ReflectionClass($propertysAttribute->getName());
+
+                    /** @var \SimpleRepository\Attributes\ServiceFactory */
                     $serviceFactory = $serviceFactoryReflection->newInstance(...$propertysAttribute->getArguments());
 
                     return $serviceFactory->getService();
@@ -111,6 +113,8 @@ abstract class Service
             $attributeName = $propertysAttribute->getName();
             if ($attributeName == ModelFactory::class) {
                 $modelFactoryReflection = new ReflectionClass($attributeName);
+
+                /** @var \SimpleRepository\Attributes\ModelFactory */
                 $modelFactory = $modelFactoryReflection->newInstance(...$propertysAttribute->getArguments());
 
                 $this->{$name} = $modelFactory->getModel($attributes);

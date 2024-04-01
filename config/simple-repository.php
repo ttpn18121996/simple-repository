@@ -11,4 +11,15 @@ return [
     |
     */
     'default_repository' => 'Eloquent',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Log channel
+    |--------------------------------------------------------------------------
+    |
+    | The log channel for the handleSafely function to log errors
+    | when something goes wrong.
+    |
+    */
+    'log_channel' => 'stack',
 ];

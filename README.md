@@ -56,7 +56,10 @@ protected $repositories = [
 ```
 
 The example shows the dynamic extension of the repository pattern.
-We use province data in the database. After a while, we realize that using local data is no longer suitable and we want to use a data source from an external web service. Editing the existing `Eloquent\ProvinceRepository` content will result in errors or be difficult to revert to before. Instead, we will create a new repository called `WebService\ProvinceRepository` while still ensuring its accuracy like the old repository.
+We use province data in the database.
+After a while, we realize that using local data is no longer suitable and we want to use a data source from an external web service.
+Editing the existing `Eloquent\ProvinceRepository` content will result in errors or be difficult to revert to before.
+Instead, we will create a new repository called `WebService\ProvinceRepository` while still ensuring its accuracy like the old repository.
 
 ```text
 /app
@@ -349,6 +352,80 @@ class UserService extends Service
         return $this->getModel('user')->find($id);
     }
 }
+```
+
+## Use database processing functions safely
+
+Instead of like this:
+
+```php
+DB::beginTransaction();
+
+try {
+    // Do something
+    DB::commit();
+
+    return $data;
+} catch (\Throwable $e) {
+    DB::rollback();
+    logger()->error($e->getMessage());
+
+    return null;
+}
+```
+
+You can use the handleSafely() method instead.
+The first parameter is a callback for processing logic, the second parameter is the title of the logging.
+Let's say you get an exception, it will be of the form "Title: {message content}"
+
+```php
+use SimpleRepository\Traits\Safetyable;
+
+class MyClass
+{
+    use Safetyable;
+
+    public function doSomething($params)
+    {
+        return $this->handleSafely(function () {
+            // Do something
+
+            return $data;
+        }, 'Do something');
+    }
+}
+```
+
+Services and repositories by default use the Safetyable trait.
+You can directly invoke the handleSafely() method within services/repositories.
+
+```php
+class UserService extends Service
+{
+    #[ModelFactory(User::class)]
+    protected ?User $user = null;
+
+    public function create(array $data)
+    {
+        return $this->handleSafely(function () use ($data) {
+            $user = $this->getModel('user', $data);
+            $user->save();
+
+            return $user;
+        }, 'Create user');
+    }
+}
+```
+
+Set up a log channel for the handleSafely() method to log when something goes wrong in the `config/simple-repository.php` file
+
+```php
+<?php
+
+return [
+    ...
+    'log_channel' => 'stack',
+];
 ```
 
 ## Tips
