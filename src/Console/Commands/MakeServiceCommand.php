@@ -122,6 +122,13 @@ class MakeServiceCommand extends BaseCommand
         $propertyModels = rtrim($propertyModels, "\n");
         $propertyModels .= empty($propertyModels) ? '' : "\n\n";
 
+        if (! empty($dependencyRepositories)) {
+            $dependencyRepositories = "public function __construct(\n        "
+                .rtrim($dependencyRepositories, "\n        ")
+                ."\n    ) {\n    }";
+            $propertyModels .= '    ';
+        }
+
         $serviceContent = str_replace([
             '{{ namespace }}',
             '{{ namespacedDependencies }}',
@@ -133,7 +140,7 @@ class MakeServiceCommand extends BaseCommand
             rtrim($namespacedModels.$namespacedRepositories, "\n"),
             $this->getServiceName(),
             rtrim($dependencyRepositories, "\n        "),
-            $propertyModels.'    ',
+            $propertyModels,
         ], $serviceContent);
 
         fwrite($file, $serviceContent);

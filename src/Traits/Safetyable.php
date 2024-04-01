@@ -10,6 +10,8 @@ use Throwable;
 
 trait Safetyable
 {
+    public string $logChannel = 'stack';
+
     /**
      * Safely execute database interactions using transaction.
      */
@@ -26,14 +28,15 @@ trait Safetyable
         } catch (ServiceNotFoundException $e) {
             DB::rollBack();
 
-            Log::error("{$titleError}: Incorrect service class name or service class does not exist.
-            Initialize the service manually to ensure that it exists.");
+            Log::channel($this->logChannel)
+                ->error("{$titleError}: Incorrect service class name or service class does not exist.
+                Initialize the service manually to ensure that it exists.");
 
             return null;
         } catch (Throwable $e) {
             DB::rollBack();
 
-            Log::error("{$titleError}: {$e->getMessage()}");
+            Log::channel($this->logChannel)->error("{$titleError}: {$e->getMessage()}");
 
             return null;
         }

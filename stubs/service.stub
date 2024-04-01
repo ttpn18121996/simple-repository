@@ -7,8 +7,5 @@ use SimpleRepository\Attributes\ModelFactory;
 
 class {{ class }} extends Service
 {
-{{ properties }}public function __construct(
-        {{ dependencies }}
-    ) {
-    }
+{{ properties }}{{ dependencies }}
 }
