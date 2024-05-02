@@ -5,7 +5,6 @@ namespace SimpleRepository;
 use ErrorException;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
