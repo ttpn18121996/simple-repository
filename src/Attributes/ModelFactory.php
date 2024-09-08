@@ -7,9 +7,15 @@ use Illuminate\Container\Container;
 use Illuminate\Database\Eloquent\Model;
 use SimpleRepository\RepositoryMakeModelException;
 
+/**
+ * @template TModel
+ */
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class ModelFactory
 {
+    /**
+     * @param  class-string<TModel>
+     */
     public function __construct(
         protected string $modelName,
     ) {
@@ -17,6 +23,8 @@ class ModelFactory
 
     /**
      * Get a new Eloquent model instance.
+     *
+     * @return TModel
      *
      * @throws \SimpleRepository\RepositoryMakeModelException
      */
