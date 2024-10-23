@@ -4,10 +4,14 @@ namespace {{ namespace }};
 
 use {{ namespacedModel }};
 use App\Repositories\Contracts\{{ class }} as {{ class }}Contract;
+use Illuminate\Support\Arr;
+use SimpleRepository\Concerns\HasFilter;
 use SimpleRepository\Repository;
 
 class {{ class }} extends Repository implements {{ class }}Contract
 {
+    use HasFilter;
+
     /**
      * Get data source for the repository.
      */
@@ -25,6 +29,18 @@ class {{ class }} extends Repository implements {{ class }}Contract
     }
 
     /**
+     * Get a listing of the resource with paination.
+     */
+    public function paginate(array $filters = [])
+    {
+        $page = Arr::get($filters, 'page', 1);
+        $perPage = Arr::get($filters, 'per_page', 10);
+        $query = $this->buildFilter($this->getDataSource()->query(), $filters);
+
+        return $query->paginate($perPage, ['*'], 'page', $page)->withQueryString()->onEachSide(1);
+    }
+
+    /**
      * Get a specified resource.
      */
     public function find(string|int $id)
@@ -37,7 +53,19 @@ class {{ class }} extends Repository implements {{ class }}Contract
      */
     public function create(array $data)
     {
-        return $this->getDataSource()->create();
+        return $this->handleSafely(function () use ($data) {
+            $model = $this->getDataSource();
+
+            foreach ($data as $key => $value) {
+                $model->{$key} = $value;
+            }
+
+            $model->save();
+
+            $model->refresh();
+
+            return $model->id;
+        }, 'Create '.{{ model }}::class);
     }
 
     /**
@@ -45,7 +73,17 @@ class {{ class }} extends Repository implements {{ class }}Contract
      */
     public function update(array $data, string|int $id)
     {
-        return $this->getDataSource()->where('id', $id)->update($data);
+        return $this->handleSafely(function () use ($data, $id) {
+            $model = $this->find($id);
+
+            foreach ($data as $key => $value) {
+                $model->{$key} = $value;
+            }
+
+            $model->save();
+
+            return true;
+        }, 'Update '.{{ model }}::class);
     }
 
     /**
@@ -53,6 +91,11 @@ class {{ class }} extends Repository implements {{ class }}Contract
      */
     public function delete(string|int $id)
     {
-        return $this->getDataSource()->where('id', $id)->delete();
+        return $this->handleSafely(function () use ($id) {
+            $model = $this->find($id);
+            $model->delete();
+
+            return true;
+        }, 'Delete '.{{ model }}::class);
     }
 }
