@@ -47,7 +47,7 @@ class MakeRepositoryCommand extends BaseCommand
 
         $contractStubPath = $this->resolveStubPath(class_exists($modelClass)
             ? '/stubs/repository.contract.model.stub'
-            : '/stubs/repository.contract.stub'
+            : '/stubs/repository.contract.stub',
         );
         $repositoryStubPath = $this->resolveStubPath(class_exists($modelClass)
             ? '/stubs/repository.model.stub'
