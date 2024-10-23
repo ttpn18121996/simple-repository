@@ -3,6 +3,7 @@
 namespace SimpleRepository\Concerns;
 
 use Closure;
+use Illuminate\Contracts\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Arr;
 
@@ -20,6 +21,15 @@ trait HasFilter
         $filter = Arr::get($filters, 'filter');
         $orFilter = Arr::get($filters, 'or_filter');
         $sort = Arr::get($filters, 'sort');
+        $deleted = Arr::get($filters, 'deleted', null);
+
+        if ($deleted) {
+            if ($query instanceof EloquentBuilder) {
+                $query->onlyTrashed();
+            } else {
+                $query->whereNotNull($deleted);
+            }
+        }
 
         if (! empty($search)) {
             $query->where($this->whereSearch($search));
