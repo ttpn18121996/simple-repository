@@ -65,7 +65,7 @@ class {{ class }} extends Repository implements {{ class }}Contract
             $model->refresh();
 
             return $model->id;
-        }, 'Create '.{{ model }}::class);
+        }, '{{ class }}::create');
     }
 
     /**
@@ -83,7 +83,7 @@ class {{ class }} extends Repository implements {{ class }}Contract
             $model->save();
 
             return true;
-        }, 'Update '.{{ model }}::class);
+        }, '{{ class }}::update');
     }
 
     /**
@@ -96,6 +96,6 @@ class {{ class }} extends Repository implements {{ class }}Contract
             $model->delete();
 
             return true;
-        }, 'Delete '.{{ model }}::class);
+        }, '{{ class }}::delete');
     }
 }
