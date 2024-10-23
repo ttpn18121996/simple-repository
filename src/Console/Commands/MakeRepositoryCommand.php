@@ -45,7 +45,10 @@ class MakeRepositoryCommand extends BaseCommand
             return BaseCommand::FAILURE;
         }
 
-        $contractStubPath = $this->resolveStubPath('/stubs/repository.contract.stub');
+        $contractStubPath = $this->resolveStubPath(class_exists($modelClass)
+            ? '/stubs/repository.contract.model.stub'
+            : '/stubs/repository.contract.stub'
+        );
         $repositoryStubPath = $this->resolveStubPath(class_exists($modelClass)
             ? '/stubs/repository.model.stub'
             : '/stubs/repository.stub');
@@ -82,27 +85,6 @@ class MakeRepositoryCommand extends BaseCommand
         if (! is_dir($dir)) {
             mkdir($dir, 0777);
         }
-
-        $this->makeBaseRepository();
-    }
-
-    /**
-     * Create a new repository file for BaseRepository class.
-     */
-    protected function makeBaseRepository(): void
-    {
-        $stubPath = $this->resolveStubPath('/stubs/repository.base.stub');
-        $filePath = $this->laravel->basePath('app/Repositories/Repository.php');
-
-        if (file_exists($filePath)) {
-            return;
-        }
-
-        $file = fopen($filePath, 'w+');
-        $content = file_get_contents($stubPath);
-
-        fwrite($file, $content);
-        fclose($file);
     }
 
     /**
@@ -199,11 +181,20 @@ class MakeRepositoryCommand extends BaseCommand
         $name = $this->getRepositoryName();
 
         foreach ($fileContent as $line => $content) {
+            $repositoryContract = $this->namespaceRepositoryContract()."\\$name::class";
+            $repositoryClass = $this->namespaceRepository($this->option('repo'))."\\$name::class";
+
             if (str_contains($content, 'protected $repositories = [')) {
                 $contentStart = $line;
+            } elseif (str_contains($content, $repositoryContract.' => ')) {
+                $fileContent[$line] = preg_replace(
+                    '/('.preg_quote($repositoryContract).' \=\> )(.*?)$/',
+                    '$1\\'.$repositoryClass.',',
+                    $content,
+                );
+
+                break;
             } elseif ($contentStart != 0 && str_contains($content, '];')) {
-                $repositoryContract = $this->namespaceRepositoryContract()."\\$name::class";
-                $repositoryClass = $this->namespaceRepository($this->option('repo'))."\\$name::class";
                 $fileContent[$line] = <<<EOT
                         \\$repositoryContract => \\$repositoryClass,
                     ];

@@ -1,6 +1,6 @@
 <?php
 
-namespace SimpleRepository\Traits;
+namespace SimpleRepository\Concerns;
 
 use Closure;
 use Illuminate\Support\Facades\Config;
