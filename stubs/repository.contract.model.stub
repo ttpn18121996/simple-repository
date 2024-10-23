@@ -2,9 +2,7 @@
 
 namespace App\Repositories\Contracts;
 
-use SimpleRepository\Contracts\Repository;
-
-interface {{ class }} extends Repository
+interface {{ class }}
 {
     /**
      * Get a listing of the resource.
