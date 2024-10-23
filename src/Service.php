@@ -11,8 +11,8 @@ use Illuminate\Support\Str;
 use ReflectionClass;
 use SimpleRepository\Attributes\ModelFactory;
 use SimpleRepository\Attributes\ServiceFactory;
-use SimpleRepository\Traits\HasFilter;
-use SimpleRepository\Traits\Safetyable;
+use SimpleRepository\Concerns\HasFilter;
+use SimpleRepository\Concerns\Safetyable;
 
 abstract class Service
 {

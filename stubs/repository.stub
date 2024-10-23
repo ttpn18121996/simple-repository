@@ -3,15 +3,15 @@
 namespace {{ namespace }};
 
 use App\Repositories\Contracts\{{ class }} as {{ class }}Contract;
-use App\Repositories\Repository;
+use SimpleRepository\Repository;
 
 class {{ class }} extends Repository implements {{ class }}Contract
 {
     /**
-     * Get full name of model.
+     * Get data source for the repository.
      */
-    public function getModelName(): string
+    public function getDataSource()
     {
-        return '';
+        // return DB::table('');
     }
 }

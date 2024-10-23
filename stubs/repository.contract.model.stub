@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Repositories\Contracts;
+
+use SimpleRepository\Contracts\Repository;
+
+interface {{ class }} extends Repository
+{
+    /**
+     * Get a listing of the resource.
+     */
+    public function all();
+
+    /**
+     * Get a specified resource.
+     */
+    public function find(string|int $id);
+
+    /**
+     * Create a new resource.
+     */
+    public function create(array $data);
+
+    /**
+     * Update a specified resource.
+     */
+    public function update(array $data, string|int $id);
+
+    /**
+     * Delete a specified resource.
+     */
+    public function delete(string|int $id);
+}

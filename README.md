@@ -37,11 +37,16 @@ php artisan make:repository UserRepository --model=User
 php artisan make:repository UserRepository -m User
 ```
 
-Use another repository during build by adding the `--repo` or `-r` option. For example, if you want to use Redis instead
-of Eloquent, now the repository will be created in the path `app/Repositories/Redis/UserRepository.php`
+Use another repository during the build by adding the `--repo` or `-r` option. For example,
+if you want to use an external service instead of Eloquent,
+now the repository will be created in the path `app/Repositories/Api/UserRepository.php`
 
 ```bash
-php artisan make:repository UserRepository -m User -r Redis
+php artisan make:repository UserRepository --repo Api
+
+#OR
+
+php artisan make:repository UserRepository -r Api
 ```
 
 After creating the repository remember to declare in
@@ -59,18 +64,18 @@ The example shows the dynamic extension of the repository pattern.
 We use province data in the database.
 After a while, we realize that using local data is no longer suitable and we want to use a data source from an external web service.
 Editing the existing `Eloquent\ProvinceRepository` content will result in errors or be difficult to revert to before.
-Instead, we will create a new repository called `WebService\ProvinceRepository` while still ensuring its accuracy like the old repository.
+Instead, we will create a new repository called `Api\ProvinceRepository` while still ensuring its accuracy like the old repository.
 
 ```text
 /app
 ├---/Providers
 |   ├---RepositoryServiceProvider.php
 ├---/Repositories
+|   ├---/Api
+|   |   ├---ProvinceRepository.php
 |   ├---/Contracts
 |   |   ├---ProvinceRepository.php
 |   ├---/Eloquent
-|   |   ├---ProvinceRepository.php
-|   ├---/WebService
 |   |   ├---ProvinceRepository.php
 ```
 
@@ -86,38 +91,38 @@ use App\Repositories\Contracts\ProvinceRepository as ProvinceRepositoryContract;
 
 class ProvinceRepository implements ProvinceRepositoryContract
 {
-    public function getModelName(): string
+    public function getDataSource()
     {
-        return Province::class;
+        return new Province();
     }
 
     public function all()
     {
-        return $this->model()->all();
+        return $this->getDataSource()->all();
     }
 }
 ```
 
-app/Repositories/WebService/ProvinceRepository.php
+app/Repositories/Api/ProvinceRepository.php
 
 ```php
 <?php
 
-namespace App\Repositories\WebService;
+namespace App\Repositories\Api;
 
 use App\Repositories\Contracts\ProvinceRepository as ProvinceRepositoryContract;
 use Illuminate\Support\Facades\Http;
 
 class ProvinceRepository implements ProvinceRepositoryContract
 {
-    public function getModelName(): string
+    public function getDataSource()
     {
-        return '';
+        return Http::baseUrl('https://api.domain.example');
     }
 
     public function all()
     {
-        $response = Http::get('https://api.domain.example/provinces');
+        $response = $this->getDataSource()->get('/provinces');
 
         return $response->success() ? $response->collection() : collect();
     }
@@ -130,7 +135,7 @@ Finally, what we need to do is change the binding between the abstract and the c
 protected $repositories = [
     ...
     // \App\Repositories\Contracts\ProvinceRepository::class => \App\Repositories\Eloquent\ProvinceRepository::class,
-    \App\Repositories\Contracts\ProvinceRepository::class => \App\Repositories\WebService\ProvinceRepository::class,
+    \App\Repositories\Contracts\ProvinceRepository::class => \App\Repositories\Api\ProvinceRepository::class,
 ]
 ```
 
@@ -379,7 +384,7 @@ The first parameter is a callback for processing logic, the second parameter is 
 Let's say you get an exception, it will be of the form "Title: {message content}"
 
 ```php
-use SimpleRepository\Traits\Safetyable;
+use SimpleRepository\Concerns\Safetyable;
 
 class MyClass
 {

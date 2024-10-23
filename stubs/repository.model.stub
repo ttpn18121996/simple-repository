@@ -4,15 +4,55 @@ namespace {{ namespace }};
 
 use {{ namespacedModel }};
 use App\Repositories\Contracts\{{ class }} as {{ class }}Contract;
-use App\Repositories\Repository;
+use SimpleRepository\Repository;
 
 class {{ class }} extends Repository implements {{ class }}Contract
 {
     /**
-     * Get full name of model.
+     * Get data source for the repository.
      */
-    public function getModelName(): string
+    public function getDataSource(): {{ model }}
     {
-        return {{ model }}::class;
+        return new {{ model }}();
+    }
+
+    /**
+     * Get a listing of the resource.
+     */
+    public function all()
+    {
+        return $this->getDataSource()->all();
+    }
+
+    /**
+     * Get a specified resource.
+     */
+    public function find(string|int $id)
+    {
+        return $this->getDataSource()->find($id);
+    }
+
+    /**
+     * Create a new resource.
+     */
+    public function create(array $data)
+    {
+        return $this->getDataSource()->create();
+    }
+
+    /**
+     * Update a specified resource.
+     */
+    public function update(array $data, string|int $id)
+    {
+        return $this->getDataSource()->where('id', $id)->update($data);
+    }
+
+    /**
+     * Delete a specified resource.
+     */
+    public function delete(string|int $id)
+    {
+        return $this->getDataSource()->where('id', $id)->delete();
     }
 }
