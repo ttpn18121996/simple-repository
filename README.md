@@ -273,6 +273,9 @@ $this->buildFilter(query: $query, filters: [
         'field' => 'field_name',
         'direction' => 'asc' // asc | desc
     ],
+    // If the value is null, the records that have not been deleted will be queried.
+    // Otherwise, the query will be based on the column name with the value not null.
+    'deleted' => 'deleted_at', // by default is null
 ]);
 ```
 
