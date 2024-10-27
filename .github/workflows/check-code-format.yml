@@ -29,4 +29,4 @@ jobs:
       run: composer global require laravel/pint
 
     - name: "Run Pint"
-      run: pint src -v
+      run: pint --config pint.json
