@@ -18,8 +18,7 @@ class ModelFactory
      */
     public function __construct(
         protected string $modelName,
-    ) {
-    }
+    ) {}
 
     /**
      * Get a new Eloquent model instance.

@@ -19,7 +19,7 @@ class FilterAdapter
 
     public static function makeDTO($data): FilterDTO
     {
-        $instance = new static();
+        $instance = new static;
         $data = $instance->getArrayableData($data);
 
         return new FilterDTO(
