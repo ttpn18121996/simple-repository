@@ -22,8 +22,6 @@ trait HasEloquentSupport
 
     protected array $doesntHave = [];
 
-    protected ?string $modelName = null;
-
     /**
      * Get a new Eloquent model instance.
      *
@@ -31,11 +29,11 @@ trait HasEloquentSupport
      */
     public function model(array $attributes = [])
     {
-        $modelName = $this->modelName;
-
-        if (is_null($modelName)) {
+        if (! property_exists($this, 'modelName') || is_null($this->modelName)) {
             throw new RepositoryMakeModelException('Model name not set yet. You must set the modelName property.');
         }
+
+        $modelName = $this->modelName;
 
         $model = Container::getInstance()->make($modelName, [
             'attributes' => $attributes,
