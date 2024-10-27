@@ -4,6 +4,21 @@
 
 [`Laravel v11.x`](https://github.com/laravel/laravel)
 
+## Content
+
+- [Installation](#installation)
+- [Create repository](#create-repository)
+- [Create service](#create-service)
+- [Use data filters for your query builder](#use-data-filters-for-your-query-builder)
+- [Use eloquent helper to customize query builder](#use-eloquent-helper-to-customize-query-builder)
+  - [Customize the relationship builder](#customize-the-relationship-builder)
+  - [Customize the query builder](#customize-the-query-builder)
+- [Set an authenticated user for the service](#set-an-authenticated-user-for-the-service)
+- [Implementation and expansion](#implementation-and-expansion)
+- [ModelFactory attribute](#modelfactory-attribute)
+- [Use database processing functions safely](#use-database-processing-functions-safely)
+- [Tips](#tips)
+
 ## Installation
 
 Install using composer:
@@ -168,24 +183,53 @@ php artisan make:service UserService --repo=UserRepository --repo=RoleRepository
 php artisan make:service UserService -r UserRepository -r RoleRepository
 ```
 
-## Customize the filter builder
-
-Override the `buildFilter` method in the repository class to customize the `buildFilter` from the request.
+## Use data filters for your query builder
 
 ```php
-protected function buildFilter(Builder $query, array $filters = []): Builder
+use SimpleRepository\Concerns\HasFilter;
+
+class UserService extends Service
 {
-    return $query->orderBy('name')
-        ->when(Arr::get($filters, 'name'), function (Builder $query, $name) {
-            $query->where('name', 'like', "%{$name}%");
-        });
+    use HasFilter;
 }
 ```
 
-Now you just need to call `getAll` or `getPagination`,
-the query will filter itself according to the filters you pass in.
+Override the `buildFilter` method in the class to customize the `buildFilter` from the request.
 
-## Customize the relationship builder
+```php
+use Illuminate\Contracts\Database\Query\Builder;
+use SimpleRepository\FilterAdapter;
+use SimpleRepository\FilterDTO;
+
+protected function buildFilter(Builder $query, array|FilterDTO $filters = []): Builder
+{
+    $filters = $filters instanceof FilterDTO ? $filters : FilterAdapter::makeDTO($filters);
+
+    // ...
+}
+```
+
+## Use eloquent helper to customize query builder
+
+```php
+use App\Models\User;
+use SimpleRepository\Concerns\HasEloquentSupport;
+
+class UserRepository extends Repository
+{
+    use HasEloquentSupport;
+
+    protected ?string $modelName = User::class;
+}
+```
+
+### Get list with pagination in HasEloquentSupport
+
+```php
+$users = app(\App\Repositories\Contracts\UserRepository::class)->getPagination($filters);
+```
+
+### Customize the relationship builder
 
 Similar to the filter builder, you can override the `buildRelationships` method to customize relational query handling.
 
@@ -196,16 +240,23 @@ protected function buildRelationships(): Builder
 }
 ```
 
-## Customize the query builder
-
-If you want to customize the query without affecting other methods that are using `buildRelationships`
-and `buildFilter`, you can override the `getBuilder` method.
+After overriding the `buildRelationships` method,
+the `getPagination` method will include roles and permissions for each item.
 
 ```php
-protected function getBuilder(array $filters = []): Builder
+// Get a paginated list of users with roles and permissions for each user.
+$users = app(\App\Repositories\Contracts\UserRepository::class)->getPagination($filters);
+```
+
+### Customize the query builder
+
+If you want to customize the query, you can override the `getBuilder` method.
+If you use it in combination with `HasFilter`, the order will be `buildFilter`, `buildRelationships`, `getBuilder`
+
+```php
+protected function getBuilder(Builder $query, array $filters = []): Builder
 {
-    return $this->model()
-        ->with(['roles', 'permissions'])
+    return $query->with(['roles', 'permissions'])
         ->when(Arr::get($filters, 'name'), function (Builder $query, $name) {
             $query->where('name', 'like', "%{$name}%");
         })
@@ -277,6 +328,49 @@ $this->buildFilter(query: $query, filters: [
     // Otherwise, the query will be based on the column name with the value not null.
     'deleted' => 'deleted_at', // by default is null
 ]);
+```
+
+Or you can use DTO as parameter for filter.
+
+```php
+use SimpleRepository\FilterDTO;
+use SimpleRepository\Enums\SortDirection;
+
+new FilterDTO(
+    page: 1,
+    perPage: 10,
+    search: [
+        'field_1' => 'value1',
+        'field_2' => 'value2',
+    ],
+    orSearch: [
+        'field_1' => 'value1',
+        'field_2' => 'value2',
+    ],
+    filter: [
+        'field_1' => 'value1',
+        'field_2' => 'value2',
+    ],
+    orFilter: [
+        'field_1' => 'value1',
+        'field_2' => 'value2',
+    ],
+    sortField: 'field_name',
+    sortDirection: SortDirection::tryFrom('asc') ?? SortDirection::ASC,
+    deleted: 'deleted_at',
+);
+```
+
+To create DTOs dynamically, you can use `FilterAdapter`
+
+```php
+use SimpleRepository\FilterAdapter;
+
+
+public function index(Request $request)
+{
+    $filterDTO = FilterAdapter::makeDTO($request);
+}
 ```
 
 To fix the problem of 2 tables having the same field name or you want to change the field on the url to avoid revealing
