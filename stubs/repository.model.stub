@@ -4,20 +4,23 @@ namespace {{ namespace }};
 
 use {{ namespacedModel }};
 use App\Repositories\Contracts\{{ class }} as {{ class }}Contract;
-use Illuminate\Support\Arr;
+use SimpleRepository\Concerns\HasEloquentSupport;
 use SimpleRepository\Concerns\HasFilter;
 use SimpleRepository\Repository;
 
 class {{ class }} extends Repository implements {{ class }}Contract
 {
+    use HasEloquentSupport;
     use HasFilter;
+
+    protected ?string $modelName = {{ model }}::class;
 
     /**
      * Get data source for the repository.
      */
     public function getDataSource(): {{ model }}
     {
-        return new {{ model }}();
+        return $this->model();
     }
 
     /**
@@ -33,11 +36,7 @@ class {{ class }} extends Repository implements {{ class }}Contract
      */
     public function paginate(array $filters = [])
     {
-        $page = Arr::get($filters, 'page', 1);
-        $perPage = Arr::get($filters, 'per_page', 10);
-        $query = $this->buildFilter($this->getDataSource()->query(), $filters);
-
-        return $query->paginate($perPage, ['*'], 'page', $page)->withQueryString()->onEachSide(1);
+        return $this->getPagination($filters, ['*'], ['page_name' => 'page'])->onEachSide(1);
     }
 
     /**

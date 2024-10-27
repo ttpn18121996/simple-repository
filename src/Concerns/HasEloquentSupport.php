@@ -2,7 +2,10 @@
 
 namespace SimpleRepository\Concerns;
 
+use Illuminate\Container\Container;
 use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use SimpleRepository\RepositoryMakeModelException;
 
@@ -59,9 +62,17 @@ trait HasEloquentSupport
         $page = Arr::get($filters, $pageName, 1);
         $perPage = Arr::get($filters, 'per_page', 10);
 
-        return $this->getBuilder($filters)
-            ->paginate($perPage, $columns, $pageName, $page)
-            ->withQueryString();
+        $query = $this->buildRelationships();
+
+        if (method_exists($this, 'buildFilter')) {
+            $query = $this->buildFilter($query, $filters);
+        }
+
+        if (method_exists($this, 'getBuild')) {
+            $query = $this->getBuilder($query);
+        }
+
+        return $query->paginate($perPage, $columns, $pageName, $page)->withQueryString();
     }
 
     /**
@@ -128,18 +139,6 @@ trait HasEloquentSupport
         }
 
         return $this;
-    }
-
-    /**
-     * Get a builder that handles filters and relationships.
-     */
-    protected function getBuilder(array $filters = []): Builder
-    {
-        if (! method_exists($this, 'buildFilter')) {
-            return $this->buildRelationships();
-        }
-
-        return $this->buildFilter($this->buildRelationships(), $filters);
     }
 
     /**

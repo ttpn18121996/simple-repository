@@ -6,6 +6,8 @@ use Closure;
 use Illuminate\Contracts\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Contracts\Database\Query\Builder;
 use Illuminate\Support\Arr;
+use SimpleRepository\FilterAdapter;
+use SimpleRepository\FilterDTO;
 
 trait HasFilter
 {
@@ -14,14 +16,14 @@ trait HasFilter
     /**
      * Build a query with field filters.
      */
-    protected function buildFilter(Builder $query, array $filters = []): Builder
+    protected function buildFilter(Builder $query, array|FilterDTO $filters = []): Builder
     {
-        $search = Arr::get($filters, 'search');
-        $orSearch = Arr::get($filters, 'or_search');
-        $filter = Arr::get($filters, 'filter');
-        $orFilter = Arr::get($filters, 'or_filter');
-        $sort = Arr::get($filters, 'sort');
-        $deleted = Arr::get($filters, 'deleted', null);
+        $filters = $filters instanceof FilterDTO ? $filters : FilterAdapter::makeDTO($filters);
+        $search = $filters->getSearch();
+        $orSearch = $filters->getOrSearch();
+        $filter = $filters->getFilter();
+        $orFilter = $filters->getOrFilter();
+        $deleted = $filters->getDeleted();
 
         if ($deleted) {
             if ($query instanceof EloquentBuilder) {
@@ -47,8 +49,8 @@ trait HasFilter
             $query->where($this->whereFilter($orFilter, 'or'));
         }
 
-        if (! empty($sort) && Arr::has($sort, ['field', 'direction'])) {
-            $query->orderBy($this->getTransferredField($sort['field']), $sort['direction'] ?? 'asc');
+        if ($filters->hasSort()) {
+            $query->orderBy($this->getTransferredField($filters->getSortField()), $filters->getSortDirection()->value);
         }
 
         return $query;

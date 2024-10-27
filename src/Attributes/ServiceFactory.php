@@ -16,8 +16,7 @@ class ServiceFactory
      */
     public function __construct(
         protected string $serviceName,
-    ) {
-    }
+    ) {}
 
     /**
      * Create a new service instance.
