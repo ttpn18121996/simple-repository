@@ -11,9 +11,6 @@ abstract class Repository
 {
     use Safetyable;
 
-    /** @var T */
-    protected $dataSource;
-
     /**
      * @return T
      */
