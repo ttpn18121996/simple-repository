@@ -66,7 +66,7 @@ trait HasEloquentSupport
             $query = $this->buildFilter($query, $filters);
         }
 
-        if (method_exists($this, 'getBuild')) {
+        if (method_exists($this, 'getBuilder')) {
             $query = $this->getBuilder($query, $filters);
         }
 
