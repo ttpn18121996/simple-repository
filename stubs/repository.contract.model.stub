@@ -10,7 +10,7 @@ interface {{ class }}
     public function all();
 
     /**
-     * Get a listing of the resource with paination.
+     * Get a listing of the resource with pagination.
      */
     public function paginate(array $filters = []);
 
