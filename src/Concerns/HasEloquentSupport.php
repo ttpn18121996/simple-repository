@@ -67,7 +67,7 @@ trait HasEloquentSupport
         }
 
         if (method_exists($this, 'getBuild')) {
-            $query = $this->getBuilder($query);
+            $query = $this->getBuilder($query, $filters);
         }
 
         return $query->paginate($perPage, $columns, $pageName, $page)->withQueryString();
