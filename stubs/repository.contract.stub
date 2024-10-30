@@ -2,7 +2,9 @@
 
 namespace App\Repositories\Contracts;
 
-interface {{ class }}
+use SimpleRepository\Contracts\Repository;
+
+interface {{ class }} extends Repository
 {
     //
 }
