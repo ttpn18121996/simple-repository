@@ -14,7 +14,7 @@ use SimpleRepository\RepositoryMakeModelException;
 class ModelFactory
 {
     /**
-     * @param  class-string<TModel>
+     * @param  class-string<TModel>  $modelName
      */
     public function __construct(
         protected string $modelName,

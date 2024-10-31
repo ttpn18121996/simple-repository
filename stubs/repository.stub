@@ -3,9 +3,8 @@
 namespace {{ namespace }};
 
 use App\Repositories\Contracts\{{ class }} as {{ class }}Contract;
-use SimpleRepository\Repository;
 
-class {{ class }} extends Repository implements {{ class }}Contract
+class {{ class }} implements {{ class }}Contract
 {
     /**
      * Get data source for the repository.

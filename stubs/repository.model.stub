@@ -6,9 +6,11 @@ use {{ namespacedModel }};
 use App\Repositories\Contracts\{{ class }} as {{ class }}Contract;
 use SimpleRepository\Concerns\HasEloquentSupport;
 use SimpleRepository\Concerns\HasFilter;
-use SimpleRepository\Repository;
 
-class {{ class }} extends Repository implements {{ class }}Contract
+/**
+ * @implements {{ class }}Contract<{{ model }}>
+ */
+class {{ class }} implements {{ class }}Contract
 {
     use HasEloquentSupport;
     use HasFilter;
@@ -32,7 +34,7 @@ class {{ class }} extends Repository implements {{ class }}Contract
     }
 
     /**
-     * Get a listing of the resource with paination.
+     * Get a listing of the resource with pagination.
      */
     public function paginate(array $filters = [])
     {

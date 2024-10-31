@@ -12,7 +12,7 @@ use Illuminate\Container\Container;
 class ServiceFactory
 {
     /**
-     * @param  class-string<TService>
+     * @param  class-string<TService>  $serviceName
      */
     public function __construct(
         protected string $serviceName,
