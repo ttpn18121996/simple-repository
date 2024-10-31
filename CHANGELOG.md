@@ -4,7 +4,7 @@
 
 * Remove abstract class Repository
 
-## v4.2.3 - 2024-10-28
+## v4.2.3 - 2024-10-31
 
 * Restore repository interface
 * Update stubs repository model
