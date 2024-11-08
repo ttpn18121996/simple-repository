@@ -95,8 +95,10 @@ abstract class Service
     /**
      * Get the instance of the model that was instantiated from the properties whose attribute is the model factory.
      */
-    public function getModel(string $name, array $attributes = [])
+    public function getModel(?string $name = null, array $attributes = [])
     {
+        $name ??= 'model';
+
         if (! property_exists($this, $name)) {
             throw new ErrorException('Undefined property: '.get_class($this).'::$'.$name);
         }

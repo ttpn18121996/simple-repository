@@ -116,35 +116,65 @@ class MakeServiceCommand extends BaseCommand
         $file = fopen($path, 'w+');
         $serviceContent = file_get_contents($stubPath);
 
-        [$namespacedRepositories, $dependencyRepositories] = $this->getDependencyRepositories();
-        [$namespacedModels, $propertyModels] = $this->getPropertyModel();
-
-        $propertyModels = rtrim($propertyModels, "\n");
-        $propertyModels .= empty($propertyModels) ? '' : "\n\n";
-
-        if (! empty($dependencyRepositories)) {
-            $dependencyRepositories = "public function __construct(\n        "
-                .rtrim($dependencyRepositories, "\n        ")
-                ."\n    ) {\n    }";
-            $propertyModels .= '    ';
+        if ($this->option('model')) {
+            $serviceContent = $this->setProperties($serviceContent);
+        } elseif ($this->option('repo')) {
+            $serviceContent = $this->setDependencies($serviceContent);
         }
-
-        $serviceContent = str_replace([
-            '{{ namespace }}',
-            '{{ namespacedDependencies }}',
-            '{{ class }}',
-            '{{ dependencies }}',
-            '{{ properties }}',
-        ], [
-            $this->rootNamespace().'Services',
-            rtrim($namespacedModels.$namespacedRepositories, "\n"),
-            $this->getServiceName(),
-            rtrim($dependencyRepositories, "\n        "),
-            $propertyModels,
-        ], $serviceContent);
 
         fwrite($file, $serviceContent);
         fclose($file);
+    }
+
+    /**
+     * Set the content with dependencies for service file.
+     */
+    protected function setDependencies(string $serviceContent): string
+    {
+        [$namespaces, $dependencies] = $this->getDependencyRepositories();
+
+        if (! empty($dependencies)) {
+            $dependencies = "    public function __construct(\n        "
+                .rtrim($dependencies, "\n        ")
+                ."\n    ) {}";
+        }
+
+        return str_replace([
+            '{{ namespace }}',
+            '{{ namespacedDependencies }}',
+            '{{ class }}',
+            '{{ properties }}',
+            '{{ dependencies }}',
+        ], [
+            $this->rootNamespace().'Services',
+            rtrim($namespaces, "\n"),
+            $this->getServiceName(),
+            '',
+            rtrim($dependencies, "\n        "),
+        ], $serviceContent);
+    }
+
+    /**
+     * Set the content with properties for service file.
+     */
+    protected function setProperties(string $serviceContent): string
+    {
+        [$namespaces, $properties] = $this->getPropertyModel();
+        $properties = rtrim($properties, "\n");
+
+        return str_replace([
+            '{{ namespace }}',
+            '{{ namespacedDependencies }}',
+            '{{ class }}',
+            '{{ properties }}',
+            '{{ dependencies }}',
+        ], [
+            $this->rootNamespace().'Services',
+            rtrim($namespaces, "\n"),
+            $this->getServiceName(),
+            $properties,
+            '',
+        ], $serviceContent);
     }
 
     /**
@@ -159,8 +189,9 @@ class MakeServiceCommand extends BaseCommand
         sort($repositories);
 
         foreach ($repositories as $repository) {
+            $propertyName = Str::beforeLast(Str::camel($repository), 'Repository');
             $namespacedRepositories .= "\nuse {$this->namespaceRepositoryContract()}\\{$repository};\n";
-            $dependencies .= "protected {$repository} $".Str::camel($repository).",\n        ";
+            $dependencies .= "protected {$repository} \${$propertyName},\n        ";
         }
 
         return [
@@ -182,7 +213,7 @@ class MakeServiceCommand extends BaseCommand
         sort($models);
 
         foreach ($models as $model) {
-            $namespacedModels .= "\nuse {$this->getFullnameModel($model)};";
+            $namespacedModels .= "\nuse {$this->getFullnameModel($model)};\nuse SimpleRepository\Attributes\ModelFactory;";
             $properties .= "    #[ModelFactory({$model}::class)]\n";
             $properties .= "    protected ?{$model} $".Str::camel($model)." = null;\n\n";
         }

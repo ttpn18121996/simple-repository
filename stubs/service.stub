@@ -2,8 +2,6 @@
 
 namespace {{ namespace }};
 {{ namespacedDependencies }}
-use App\Services\Service;
-use SimpleRepository\Attributes\ModelFactory;
 
 class {{ class }} extends Service
 {
