@@ -213,9 +213,10 @@ protected function buildFilter(Builder $query, array|FilterDTO $filters = []): B
 
 ```php
 use App\Models\User;
+use App\Repositories\Eloquent\UserRepository as UserRepositoryContract;
 use SimpleRepository\Concerns\HasEloquentSupport;
 
-class UserRepository extends Repository
+class UserRepository implements UserRepositoryContract
 {
     use HasEloquentSupport;
 
