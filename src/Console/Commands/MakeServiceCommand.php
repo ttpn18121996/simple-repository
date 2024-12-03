@@ -212,8 +212,13 @@ class MakeServiceCommand extends BaseCommand
         $models = is_string($models) ? [$models] : $models;
         sort($models);
 
-        foreach ($models as $model) {
-            $namespacedModels .= "\nuse {$this->getFullnameModel($model)};\nuse SimpleRepository\Attributes\ModelFactory;";
+        foreach ($models as $index => $model) {
+            $namespacedModels .= "\nuse {$this->getFullnameModel($model)};";
+
+            if ($index == count($models) - 1) {
+                $namespacedModels .= "\nuse SimpleRepository\Attributes\ModelFactory;";
+            }
+
             $properties .= "    #[ModelFactory({$model}::class)]\n";
             $properties .= "    protected ?{$model} $".Str::camel($model)." = null;\n\n";
         }
