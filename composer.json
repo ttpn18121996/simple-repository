@@ -12,12 +12,12 @@
     "require": {
         "php": "^8.2",
         "ext-json": "*",
-        "illuminate/collections": "^11.0",
-        "illuminate/console": "^11.0",
-        "illuminate/contracts": "^11.0",
-        "illuminate/database": "^11.0",
-        "illuminate/support": "^11.0",
-        "illuminate/log": "^11.0"
+        "illuminate/collections": "^12.0",
+        "illuminate/console": "^12.0",
+        "illuminate/contracts": "^12.0",
+        "illuminate/database": "^12.0",
+        "illuminate/support": "^12.0",
+        "illuminate/log": "^12.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "dev-master",

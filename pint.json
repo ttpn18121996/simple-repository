@@ -1,8 +1,0 @@
-{
-    "preset": "laravel",
-    "rules": {
-        "trailing_comma_in_multiline": {
-            "elements": ["arrays", "arguments", "parameters"]
-        }
-    }
-}
