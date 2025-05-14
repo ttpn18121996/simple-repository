@@ -116,14 +116,25 @@ class MakeServiceCommand extends BaseCommand
         $file = fopen($path, 'w+');
         $serviceContent = file_get_contents($stubPath);
 
-        if ($this->option('model')) {
-            $serviceContent = $this->setProperties($serviceContent);
-        } elseif ($this->option('repo')) {
-            $serviceContent = $this->setDependencies($serviceContent);
-        }
+        $serviceContent = $this->setNamespaceAndClassName($serviceContent);
+        $serviceContent = $this->setDependencies($serviceContent);
 
         fwrite($file, $serviceContent);
         fclose($file);
+    }
+
+    /**
+     * Set the namespace and class name for service file.
+     */
+    protected function setNamespaceAndClassName(string $serviceContent): string
+    {
+        return str_replace([
+                '{{ namespace }}',
+                '{{ class }}',
+            ], [
+                $this->rootNamespace().'Services',
+                $this->getServiceName(),
+            ], $serviceContent);
     }
 
     /**
@@ -131,7 +142,13 @@ class MakeServiceCommand extends BaseCommand
      */
     protected function setDependencies(string $serviceContent): string
     {
-        [$namespaces, $dependencies] = $this->getDependencyRepositories();
+        if ($this->option('model')) {
+            [$namespaces, $dependencies] = $this->getDependencyModels();
+        } elseif ($this->option('repo')) {
+            [$namespaces, $dependencies] = $this->getDependencyRepositories();
+        } else {
+            [$namespaces, $dependencies] = ['', ''];
+        }
 
         if (! empty($dependencies)) {
             $dependencies = "    public function __construct(\n        "
@@ -140,40 +157,11 @@ class MakeServiceCommand extends BaseCommand
         }
 
         return str_replace([
-            '{{ namespace }}',
             '{{ namespacedDependencies }}',
-            '{{ class }}',
-            '{{ properties }}',
             '{{ dependencies }}',
         ], [
-            $this->rootNamespace().'Services',
             rtrim($namespaces, "\n"),
-            $this->getServiceName(),
-            '',
             rtrim($dependencies, "\n        "),
-        ], $serviceContent);
-    }
-
-    /**
-     * Set the content with properties for service file.
-     */
-    protected function setProperties(string $serviceContent): string
-    {
-        [$namespaces, $properties] = $this->getPropertyModel();
-        $properties = rtrim($properties, "\n");
-
-        return str_replace([
-            '{{ namespace }}',
-            '{{ namespacedDependencies }}',
-            '{{ class }}',
-            '{{ properties }}',
-            '{{ dependencies }}',
-        ], [
-            $this->rootNamespace().'Services',
-            rtrim($namespaces, "\n"),
-            $this->getServiceName(),
-            $properties,
-            '',
         ], $serviceContent);
     }
 
@@ -190,8 +178,12 @@ class MakeServiceCommand extends BaseCommand
 
         foreach ($repositories as $repository) {
             $propertyName = Str::beforeLast(Str::camel($repository), 'Repository');
-            $namespacedRepositories .= "\nuse {$this->namespaceRepositoryContract()}\\{$repository};\n";
+            $namespacedRepositories .= "use {$this->namespaceRepositoryContract()}\\{$repository};\n";
             $dependencies .= "protected {$repository} \${$propertyName},\n        ";
+        }
+
+        if ($namespacedRepositories !== '') {
+            $namespacedRepositories = "\n\n{$namespacedRepositories}";
         }
 
         return [
@@ -203,29 +195,27 @@ class MakeServiceCommand extends BaseCommand
     /**
      * Get the list of dependent models.
      */
-    protected function getPropertyModel(): array
+    protected function getDependencyModels(): array
     {
         $namespacedModels = '';
-        $properties = '';
+        $dependencies = '';
 
         $models = $this->option('model') ?? [];
         $models = is_string($models) ? [$models] : $models;
         sort($models);
 
-        foreach ($models as $index => $model) {
+        foreach ($models as $model) {
             $namespacedModels .= "\nuse {$this->getFullnameModel($model)};";
+            $dependencies .= "protected {$model} $".Str::camel($model).",\n        ";
+        }
 
-            if ($index == count($models) - 1) {
-                $namespacedModels .= "\nuse SimpleRepository\Attributes\ModelFactory;";
-            }
-
-            $properties .= "    #[ModelFactory({$model}::class)]\n";
-            $properties .= "    protected ?{$model} $".Str::camel($model)." = null;\n\n";
+        if ($namespacedModels !== '') {
+            $namespacedModels = "\n{$namespacedModels}";
         }
 
         return [
             $namespacedModels,
-            $properties,
+            $dependencies,
         ];
     }
 }
