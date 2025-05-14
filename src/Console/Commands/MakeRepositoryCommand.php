@@ -65,7 +65,9 @@ class MakeRepositoryCommand extends BaseCommand
 
         $this->createContract($contractStubPath);
 
-        $this->updateServiceProvider();
+        if (! $this->updateOldServiceProvider()) {
+            $this->updateServiceProvider();
+        }
 
         $this->info(sprintf(
             'Repository [%s] created successfully.',
@@ -171,9 +173,9 @@ class MakeRepositoryCommand extends BaseCommand
     }
 
     /**
-     * Update the RepositoryServiceProvider content, declaring the bindings between abstract and concrete.
+     * Update the SimpleRepositoryServiceProvider content, declaring the bindings between abstract and concrete.
      */
-    protected function updateServiceProvider(): void
+    protected function updateServiceProvider(string $propertyName = 'public $bindings'): bool
     {
         $path = $this->laravel->basePath('app/Providers/SimpleRepositoryServiceProvider.php');
         $fileContent = file($path);
@@ -184,7 +186,7 @@ class MakeRepositoryCommand extends BaseCommand
             $repositoryContract = $this->namespaceRepositoryContract()."\\$name::class";
             $repositoryClass = $this->namespaceRepository($this->option('repo'))."\\$name::class";
 
-            if (str_contains($content, 'protected $repositories = [')) {
+            if (str_contains($content, $propertyName.' = [')) {
                 $contentStart = $line;
             } elseif (str_contains($content, $repositoryContract.' => ')) {
                 $fileContent[$line] = preg_replace(
@@ -205,6 +207,20 @@ class MakeRepositoryCommand extends BaseCommand
             }
         }
 
+        if ($contentStart === 0) {
+            return false;
+        }
+
         file_put_contents($path, $fileContent);
+
+        return true;
+    }
+
+    /**
+     * This method is used to update the value of the bindings attribute in the old version.
+     */
+    protected function updateOldServiceProvider(): bool
+    {
+        return $this->updateServiceProvider('protected $repositories');
     }
 }
