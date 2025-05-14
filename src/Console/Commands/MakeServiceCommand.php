@@ -129,12 +129,12 @@ class MakeServiceCommand extends BaseCommand
     protected function setNamespaceAndClassName(string $serviceContent): string
     {
         return str_replace([
-                '{{ namespace }}',
-                '{{ class }}',
-            ], [
-                $this->rootNamespace().'Services',
-                $this->getServiceName(),
-            ], $serviceContent);
+            '{{ namespace }}',
+            '{{ class }}',
+        ], [
+            $this->rootNamespace().'Services',
+            $this->getServiceName(),
+        ], $serviceContent);
     }
 
     /**
