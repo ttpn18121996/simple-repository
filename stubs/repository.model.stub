@@ -6,6 +6,7 @@ use {{ namespacedModel }};
 use App\Repositories\Contracts\{{ class }} as {{ class }}Contract;
 use SimpleRepository\Concerns\HasEloquentSupport;
 use SimpleRepository\Concerns\HasFilter;
+use SimpleRepository\Concerns\Safetyable;
 
 /**
  * @implements {{ class }}Contract<{{ model }}>
@@ -14,6 +15,7 @@ class {{ class }} implements {{ class }}Contract
 {
     use HasEloquentSupport;
     use HasFilter;
+    use Safetyable;
 
     protected ?string $modelName = {{ model }}::class;
 
