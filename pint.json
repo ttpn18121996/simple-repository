@@ -1,0 +1,7 @@
+{
+    "rules": {
+        "phpdoc_types": false,
+        "fully_qualified_strict_types": false,
+        "global_namespace_import": false
+    }
+}
