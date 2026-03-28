@@ -12,16 +12,16 @@
     "require": {
         "php": "^8.2",
         "ext-json": "*",
-        "illuminate/collections": "^12.0",
-        "illuminate/console": "^12.0",
-        "illuminate/contracts": "^12.0",
-        "illuminate/database": "^12.0",
-        "illuminate/support": "^12.0",
-        "illuminate/log": "^12.0"
+        "illuminate/collections": "^13.0",
+        "illuminate/console": "^13.0",
+        "illuminate/contracts": "^13.0",
+        "illuminate/database": "^13.0",
+        "illuminate/support": "^13.0",
+        "illuminate/log": "^13.0"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "dev-master",
-        "laravel/pint": "^1.13"
+        "friendsofphp/php-cs-fixer": "^3.94",
+        "laravel/pint": "^1.29"
     },
     "autoload": {
         "psr-4": {
