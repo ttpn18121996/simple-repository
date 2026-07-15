@@ -62,12 +62,12 @@ trait HasEloquentSupport
         $query = $this->buildRelationships();
 
         if (method_exists($this, 'buildFilter')) {
-            /** @var \Illuminate\Database\Query\Builder */
+            /** @var \Illuminate\Database\Eloquent\Builder */
             $query = $this->buildFilter($query, $filters);
         }
 
         if (method_exists($this, 'getBuilder')) {
-            /** @var \Illuminate\Database\Query\Builder */
+            /** @var \Illuminate\Database\Eloquent\Builder */
             $query = $this->getBuilder($query, $filters);
         }
 
