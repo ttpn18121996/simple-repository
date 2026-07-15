@@ -3,8 +3,7 @@
 namespace SimpleRepository\Concerns;
 
 use Closure;
-use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 use SimpleRepository\FilterAdapter;
 use SimpleRepository\FilterDTO;
@@ -15,8 +14,11 @@ trait HasFilter
 
     /**
      * Build a query with field filters.
+     *
+     * @param  \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder<*>  $query
+     * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder<*>
      */
-    protected function buildFilter(Builder $query, array|FilterDTO $filters = []): Builder
+    protected function buildFilter($query, array|FilterDTO $filters = [])
     {
         $filters = $filters instanceof FilterDTO ? $filters : FilterAdapter::makeDTO($filters);
         $search = $filters->getSearch();
@@ -26,7 +28,7 @@ trait HasFilter
         $deleted = $filters->getDeleted();
 
         if ($deleted) {
-            if ($query instanceof EloquentBuilder) {
+            if ($query instanceof Builder) {
                 $query->onlyTrashed();
             } else {
                 $query->whereNotNull($deleted);
