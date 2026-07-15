@@ -3,8 +3,8 @@
 namespace SimpleRepository\Concerns;
 
 use Closure;
-use Illuminate\Contracts\Database\Eloquent\Builder as EloquentBuilder;
-use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 use SimpleRepository\FilterAdapter;
 use SimpleRepository\FilterDTO;

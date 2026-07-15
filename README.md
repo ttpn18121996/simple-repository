@@ -2,7 +2,7 @@
 
 [`PHP v8.2`](https://php.net)
 
-[`Laravel v11.x`](https://github.com/laravel/laravel)
+[`Laravel v13.x`](https://github.com/laravel/laravel)
 
 ## Content
 

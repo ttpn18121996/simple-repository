@@ -3,8 +3,7 @@
 namespace SimpleRepository\Concerns;
 
 use Illuminate\Container\Container;
-use Illuminate\Contracts\Database\Query\Builder;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use SimpleRepository\RepositoryMakeModelException;
@@ -55,7 +54,7 @@ trait HasEloquentSupport
         array $filters = [],
         array $columns = ['*'],
         array $options = [],
-    ): LengthAwarePaginator {
+    ) {
         $pageName = Arr::get($options, 'page_name', 'page');
         $page = Arr::get($filters, $pageName, 1);
         $perPage = Arr::get($filters, 'per_page', 10);
@@ -63,10 +62,12 @@ trait HasEloquentSupport
         $query = $this->buildRelationships();
 
         if (method_exists($this, 'buildFilter')) {
+            /** @var \Illuminate\Database\Query\Builder */
             $query = $this->buildFilter($query, $filters);
         }
 
         if (method_exists($this, 'getBuilder')) {
+            /** @var \Illuminate\Database\Query\Builder */
             $query = $this->getBuilder($query, $filters);
         }
 
