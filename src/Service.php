@@ -24,7 +24,7 @@ abstract class Service
 
     /**
      * List of authenticated users classified by guard.
-     * 
+     *
      * @var array<string, TModel>
      */
     protected array $authUsers = [];
@@ -43,7 +43,7 @@ abstract class Service
 
     /**
      * Set the authenticated user for the service.
-     * 
+     *
      * @param  TModel  $user
      */
     public function useAuthUser($user, ?string $guard = null): static
