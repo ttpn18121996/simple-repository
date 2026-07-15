@@ -5,6 +5,7 @@ namespace SimpleRepository;
 use ErrorException;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
@@ -14,19 +15,26 @@ use SimpleRepository\Attributes\ServiceFactory;
 use SimpleRepository\Concerns\HasFilter;
 use SimpleRepository\Concerns\Safetyable;
 
+/**
+ * @template TModel of Authenticatable|Model
+ */
 abstract class Service
 {
     use HasFilter, Safetyable;
 
     /**
      * List of authenticated users classified by guard.
+     * 
+     * @var array<string, TModel>
      */
     protected array $authUsers = [];
 
     /**
      * Get the authenticated user for the service.
+     *
+     * @return TModel|null
      */
-    public function authUser(?string $guard = null): ?Authenticatable
+    public function authUser(?string $guard = null)
     {
         $guard ??= Config::get('auth.defaults.guard');
 
@@ -35,8 +43,10 @@ abstract class Service
 
     /**
      * Set the authenticated user for the service.
+     * 
+     * @param  TModel  $user
      */
-    public function useAuthUser(Authenticatable $user, ?string $guard = null): static
+    public function useAuthUser($user, ?string $guard = null): static
     {
         $guard ??= Config::get('auth.defaults.guard');
 
