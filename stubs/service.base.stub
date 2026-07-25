@@ -2,8 +2,13 @@
 
 namespace App\Services;
 
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 use SimpleRepository\Service as BaseService;
 
+/**
+ * @extends BaseService<\App\Models\User>
+ */
 class Service extends BaseService
 {
     //
