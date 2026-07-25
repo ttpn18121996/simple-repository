@@ -4,6 +4,9 @@ namespace App\Repositories\Contracts;
 
 use SimpleRepository\Contracts\Repository;
 
+/**
+ * 
+ */
 interface {{ class }} extends Repository
 {
     /**

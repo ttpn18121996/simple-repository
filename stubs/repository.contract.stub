@@ -4,6 +4,10 @@ namespace App\Repositories\Contracts;
 
 use SimpleRepository\Contracts\Repository;
 
+/**
+ * @template T
+ * @extends {{ class }}Contract<T>
+ */
 interface {{ class }} extends Repository
 {
     //
