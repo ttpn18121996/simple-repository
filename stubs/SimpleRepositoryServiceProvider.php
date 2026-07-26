@@ -6,7 +6,7 @@ use Illuminate\Support\ServiceProvider;
 
 class SimpleRepositoryServiceProvider extends ServiceProvider
 {
-    public $bindings = [
+    public array $bindings = [
     ];
 
     /**
