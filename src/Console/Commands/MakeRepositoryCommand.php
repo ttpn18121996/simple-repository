@@ -175,7 +175,7 @@ class MakeRepositoryCommand extends BaseCommand
     /**
      * Update the SimpleRepositoryServiceProvider content, declaring the bindings between abstract and concrete.
      */
-    protected function updateServiceProvider(string $propertyName = 'public $bindings'): bool
+    protected function updateServiceProvider(string $propertyName = 'public array $bindings'): bool
     {
         $path = $this->laravel->basePath('app/Providers/SimpleRepositoryServiceProvider.php');
         $fileContent = file($path);
